@@ -1,13 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
-    <link rel="manifest" href="manifest.json">
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
-    </script>
-    
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -210,6 +203,25 @@
         color: var(--primary);
         text-decoration: none;
         cursor: pointer;
+      }
+      .auth-forgot-wrap {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: -4px;
+        margin-bottom: 12px;
+      }
+      .auth-forgot {
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 2px 0;
+      }
+      .auth-forgot:hover {
+        text-decoration: underline;
       }
       .auth-offline {
         text-align: center;
@@ -1165,6 +1177,11 @@
             onkeydown="if (event.key === 'Enter') submitAuth();"
           />
         </div>
+        <div class="auth-forgot-wrap" id="auth-forgot-wrap">
+          <button class="auth-forgot" onclick="resetPassword()">
+            Forgot password?
+          </button>
+        </div>
         <div id="signup-extra" class="hidden">
           <div class="form-group">
             <label class="form-label">Confirm Password</label>
@@ -1849,6 +1866,7 @@
         getAuth,
         createUserWithEmailAndPassword,
         signInWithEmailAndPassword,
+        sendPasswordResetEmail,
         signOut,
         onAuthStateChanged,
         updateProfile,
@@ -1910,6 +1928,7 @@
         window.__fbSignOut = () => signOut(auth);
         window.__fbGoogleSignIn = () =>
           signInWithRedirect(auth, new GoogleAuthProvider());
+        window.__fbResetPassword = (email) => sendPasswordResetEmail(auth, email);
         window.__fbReady = true;
       } else {
         console.info(
@@ -2057,6 +2076,38 @@
         }
       };
 
+      window.resetPassword = async () => {
+        if (!window.__fbReady) {
+          showAuthErr("Password reset is unavailable in offline mode.");
+          return;
+        }
+        const isSignup = document
+          .getElementById("tab-signup")
+          .classList.contains("active");
+        if (isSignup) {
+          showAuthErr("Switch to Sign In to reset your password.");
+          return;
+        }
+        const email = document.getElementById("auth-email").value.trim();
+        if (!email) {
+          showAuthErr("Enter your email first, then tap Forgot password.");
+          return;
+        }
+        try {
+          await window.__fbResetPassword(email);
+          showToast("📩 Password reset email sent. Check your inbox.");
+          document.getElementById("auth-error").style.display = "none";
+        } catch (e) {
+          const msgs = {
+            "auth/invalid-email": "Invalid email address.",
+            "auth/user-not-found": "No account found with this email.",
+            "auth/too-many-requests": "Too many attempts. Try again later.",
+            "auth/network-request-failed": "Network error. Check your connection.",
+          };
+          showAuthErr(msgs[e.code] || e.message);
+        }
+      };
+
       window.signInGoogle = async () => {
         if (!window.__fbReady) {
           window.useOffline();
@@ -2197,6 +2248,9 @@
         document.getElementById("tab-signin").classList.toggle("active", !su);
         document.getElementById("tab-signup").classList.toggle("active", su);
         document.getElementById("signup-extra").classList.toggle("hidden", !su);
+        document
+          .getElementById("auth-forgot-wrap")
+          .classList.toggle("hidden", su);
         document.getElementById("auth-submit-btn").textContent = su
           ? "Create Account"
           : "Sign In";
