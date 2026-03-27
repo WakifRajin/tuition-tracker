@@ -1542,6 +1542,34 @@
             ><input type="text" id="s-grade" placeholder="Class 8" />
           </div>
         </div>
+        <div class="stats-grid">
+          <div class="form-group">
+            <label class="form-label">Required Classes / Month</label
+            ><input
+              type="number"
+              id="s-monthly-required"
+              placeholder="8"
+              min="0"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Payment Cycle</label>
+            <select id="s-payment-cycle" onchange="syncBillingInputState()">
+              <option value="daily">Daily (per class)</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="s-billing-label">Charge per Class</label
+          ><input
+            type="number"
+            id="s-billing-amount"
+            placeholder="Uses Rate per Class"
+            min="0"
+          />
+        </div>
         <div class="form-group">
           <label class="form-label">Subjects (press Enter)</label
           ><input
@@ -1621,7 +1649,7 @@
           <label class="form-label">Notes</label
           ><textarea id="log-notes" placeholder="What was covered…"></textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="log-payment-group">
           <label class="form-label">Payment Status</label>
           <select id="log-payment">
             <option value="unpaid">⏳ Unpaid</option>
@@ -1653,9 +1681,10 @@
         <div class="sheet-title">Log Payment</div>
         <input type="hidden" id="pay-student-id" />
         <div class="form-group">
-          <label class="form-label"
+          <label class="form-label" id="pay-amount-label"
             >Amount (<span class="currency-label">৳</span>)</label
           ><input type="number" id="pay-amount" placeholder="500" min="0" />
+          <div id="pay-cycle-hint" style="font-size: 0.75rem; color: var(--text3); margin-top: 6px"></div>
         </div>
         <div class="form-group">
           <label class="form-label">Date</label
@@ -1707,7 +1736,7 @@
           <label class="form-label">Notes</label
           ><textarea id="edit-notes"></textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="edit-payment-group">
           <label class="form-label">Payment Status</label>
           <select id="edit-payment">
             <option value="unpaid">⏳ Unpaid</option>
@@ -2201,13 +2230,127 @@
         window.__saveToCloud?.();
       }
 
+      function getWeekKey(dateStr) {
+        const d = new Date(dateStr);
+        if (Number.isNaN(d.getTime())) return "";
+        d.setHours(0, 0, 0, 0);
+        const jan1 = new Date(d.getFullYear(), 0, 1);
+        const dayOffset = Math.floor((d - jan1) / 86400000);
+        const week = Math.floor((dayOffset + jan1.getDay()) / 7) + 1;
+        return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
+      }
+
+      function normalizeStudentSettings(shouldSave = false) {
+        let changed = false;
+        appData.students.forEach((s) => {
+          if (!["daily", "weekly", "monthly"].includes(s.paymentCycle)) {
+            s.paymentCycle = "daily";
+            changed = true;
+          }
+          if (!Number.isFinite(Number(s.monthlyRequiredClasses))) {
+            s.monthlyRequiredClasses = 8;
+            changed = true;
+          }
+          if (!Number.isFinite(Number(s.billingAmount))) {
+            s.billingAmount = Number(s.rate) || 0;
+            changed = true;
+          }
+          if (s.paymentCycle === "daily") {
+            const rate = Number(s.rate) || 0;
+            if ((Number(s.billingAmount) || 0) !== rate) {
+              s.billingAmount = rate;
+              changed = true;
+            }
+          }
+        });
+        if (changed && shouldSave) save();
+      }
+
+      function getMonthlySessionsCount(studentId, baseDate = new Date()) {
+        return appData.sessions.filter((x) => {
+          if (x.studentId !== studentId) return false;
+          const d = new Date(x.date);
+          return (
+            d.getMonth() === baseDate.getMonth() &&
+            d.getFullYear() === baseDate.getFullYear()
+          );
+        }).length;
+      }
+
+      function getStudentPaymentSummary(student) {
+        const cycle = student.paymentCycle || "daily";
+        const sessions = appData.sessions.filter((x) => x.studentId === student.id);
+        const payments = (appData.payments || []).filter((x) => x.studentId === student.id);
+        const paidTotal = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+        let chargePerUnit = 0;
+        let dueUnits = 0;
+        let cycleLabel = "per class";
+
+        if (cycle === "weekly") {
+          cycleLabel = "per week";
+          chargePerUnit = Number(student.billingAmount) || 0;
+          dueUnits = new Set(sessions.map((s) => getWeekKey(s.date)).filter(Boolean)).size;
+        } else if (cycle === "monthly") {
+          cycleLabel = "per month";
+          chargePerUnit = Number(student.billingAmount) || 0;
+          dueUnits = new Set(sessions.map((s) => String(s.date || "").slice(0, 7)).filter((k) => k.length === 7)).size;
+        } else {
+          cycleLabel = "per class";
+          chargePerUnit = Number(student.rate) || 0;
+          dueUnits = sessions.length;
+        }
+
+        const totalBilled = dueUnits * chargePerUnit;
+        const owed = Math.max(totalBilled - paidTotal, 0);
+
+        return {
+          cycle,
+          cycleLabel,
+          chargePerUnit,
+          dueUnits,
+          totalBilled,
+          paidTotal,
+          owed,
+          monthlyClasses: getMonthlySessionsCount(student.id),
+          monthlyRequiredClasses: Math.max(0, parseInt(student.monthlyRequiredClasses) || 0),
+        };
+      }
+
+      function syncBillingInputState() {
+        const cycle = document.getElementById("s-payment-cycle")?.value || "daily";
+        const rateInput = document.getElementById("s-rate");
+        const amountInput = document.getElementById("s-billing-amount");
+        const label = document.getElementById("s-billing-label");
+        if (!amountInput || !label || !rateInput) return;
+
+        if (cycle === "daily") {
+          label.textContent = "Charge per Class";
+          amountInput.value = rateInput.value;
+          amountInput.placeholder = "Uses Rate per Class";
+          amountInput.disabled = true;
+        } else if (cycle === "weekly") {
+          label.textContent = "Charge per Week";
+          amountInput.placeholder = "e.g. 2000";
+          amountInput.disabled = false;
+        } else {
+          label.textContent = "Charge per Month";
+          amountInput.placeholder = "e.g. 8000";
+          amountInput.disabled = false;
+        }
+      }
+
       // INIT
       (function init() {
+        normalizeStudentSettings(true);
         applyPrefs();
         document.getElementById("quick-date").valueAsDate = new Date();
         document.getElementById("log-date").valueAsDate = new Date();
         document.getElementById("pay-date").valueAsDate = new Date();
         document.getElementById("quick-duration").value = prefs.defaultDuration;
+        document
+          .getElementById("s-rate")
+          ?.addEventListener("input", syncBillingInputState);
       })();
 
       // NAV
@@ -2292,15 +2435,25 @@
       function openAddStudent() {
         editingStudentId = null;
         tempSubjects = [];
-        ["s-name", "s-rate", "s-grade", "s-phone", "s-notes"].forEach((id) => {
+        [
+          "s-name",
+          "s-rate",
+          "s-grade",
+          "s-phone",
+          "s-notes",
+          "s-billing-amount",
+        ].forEach((id) => {
           document.getElementById(id).value = "";
         });
+        document.getElementById("s-monthly-required").value = 8;
+        document.getElementById("s-payment-cycle").value = "daily";
         document.getElementById("student-modal-title").textContent =
           "Add New Student";
         document.getElementById("student-save-btn").textContent =
           "Save Student";
         renderSubjectPills();
         renderColorPicker(COLORS[Math.floor(Math.random() * COLORS.length)]);
+        syncBillingInputState();
         toggleModal("student-modal", true);
       }
       function openEditStudent(id) {
@@ -2311,6 +2464,14 @@
         document.getElementById("s-name").value = s.name;
         document.getElementById("s-rate").value = s.rate || "";
         document.getElementById("s-grade").value = s.grade || "";
+        document.getElementById("s-monthly-required").value =
+          parseInt(s.monthlyRequiredClasses) || 8;
+        document.getElementById("s-payment-cycle").value =
+          s.paymentCycle || "daily";
+        document.getElementById("s-billing-amount").value =
+          Number.isFinite(Number(s.billingAmount))
+            ? Number(s.billingAmount)
+            : s.rate || "";
         document.getElementById("s-phone").value = s.phone || "";
         document.getElementById("s-notes").value = s.notes || "";
         document.getElementById("student-modal-title").textContent =
@@ -2319,6 +2480,7 @@
           "Save Changes";
         renderSubjectPills();
         renderColorPicker(s.color || COLORS[0]);
+        syncBillingInputState();
         toggleModal("student-modal", true);
       }
       let selectedColor = COLORS[0];
@@ -2354,14 +2516,27 @@
           showToast("⚠️ Name is required");
           return;
         }
+        const rate = parseFloat(document.getElementById("s-rate").value) || 0;
+        const paymentCycle =
+          document.getElementById("s-payment-cycle").value || "daily";
+        const monthlyRequiredClasses = Math.max(
+          0,
+          parseInt(document.getElementById("s-monthly-required").value) || 0,
+        );
+        let billingAmount =
+          parseFloat(document.getElementById("s-billing-amount").value) || 0;
+        if (paymentCycle === "daily") billingAmount = rate;
         const sd = {
           name,
-          rate: parseFloat(document.getElementById("s-rate").value) || 0,
+          rate,
           grade: document.getElementById("s-grade").value.trim(),
           phone: document.getElementById("s-phone").value.trim(),
           notes: document.getElementById("s-notes").value.trim(),
           subjects: [...tempSubjects],
           color: selectedColor,
+          monthlyRequiredClasses,
+          paymentCycle,
+          billingAmount,
         };
         if (editingStudentId) {
           const i = appData.students.findIndex(
@@ -2410,6 +2585,7 @@
       function renderStudentDetail() {
         const s = appData.students.find((x) => x.id === activeStudentId);
         if (!s) return;
+        const pay = getStudentPaymentSummary(s);
         const sessions = appData.sessions
           .filter((x) => x.studentId === activeStudentId)
           .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -2424,9 +2600,8 @@
             d.getFullYear() === now.getFullYear()
           );
         });
-        const owed =
-          sessions.filter((x) => x.payment !== "paid").length * (s.rate || 0);
-        const earned = sessions.length * (s.rate || 0);
+        const owed = pay.owed;
+        const earned = pay.totalBilled;
         let streak = 0;
         const sds = new Set(sessions.map((x) => x.date));
         let chk = new Date();
@@ -2440,7 +2615,7 @@
     <div class="card" style="border-left:4px solid ${s.color || "var(--primary)"}">
       <div class="flex-between">
         <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">${s.name}</div>
-          <div style="font-size:.82rem;color:var(--text3);margin-top:3px">${s.grade ? '<span class="badge badge-gray">' + s.grade + "</span> " : ""} ${s.phone ? "📞 " + s.phone : ""}</div>
+          <div style="font-size:.82rem;color:var(--text3);margin-top:3px">${s.grade ? '<span class="badge badge-gray">' + s.grade + "</span> " : ""} ${s.phone ? "📞 " + s.phone : ""} <span class="badge badge-blue" style="margin-left:6px">${pay.monthlyClasses}/${pay.monthlyRequiredClasses} classes this month</span></div>
         </div>
         <div class="flex-gap"><div class="icon-btn" onclick="openEditStudent(${s.id})">✏️</div><div class="icon-btn" onclick="confirmAction('student',${s.id})" style="color:var(--danger)">🗑️</div></div>
       </div>
@@ -2450,7 +2625,7 @@
     <div class="stats-grid stats-grid-4">
       <div class="stat-card blue"><div class="stat-value">${ms.length}</div><div class="stat-label">This Month</div></div>
       <div class="stat-card orange"><div class="stat-value">${sessions.length}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card green"><div class="stat-value small">${prefs.currency}${earned.toLocaleString()}</div><div class="stat-label">Earned</div></div>
+      <div class="stat-card green"><div class="stat-value small">${prefs.currency}${earned.toLocaleString()}</div><div class="stat-label">Billed</div></div>
       <div class="stat-card red"><div class="stat-value small">${prefs.currency}${owed.toLocaleString()}</div><div class="stat-label">Owed</div></div>
     </div>
     ${streak > 0 ? '<div class="streak-display" style="margin-bottom:14px"><div><div class="streak-num">' + streak + '</div></div><div><div style="font-weight:700">Streak 🔥</div><div style="font-size:.78rem;color:var(--text3)">Consecutive days</div></div></div>' : ""}
@@ -2460,7 +2635,7 @@
     </div>
     <div class="card" id="student-bar-chart-wrap"><div class="card-title"><span>📈</span> Last 8 Weeks</div><canvas id="student-bar-chart" height="140"></canvas></div>
     <div class="card">
-      <div class="card-title flex-between"><span><span>💳</span> Payments</span><span class="badge ${owed > 0 ? "badge-red" : "badge-green"}">${owed > 0 ? "Owes " + prefs.currency + owed.toLocaleString() : "All Paid"}</span></div>
+      <div class="card-title flex-between"><span><span>💳</span> Payments</span><span class="badge badge-gray">${pay.cycle.charAt(0).toUpperCase() + pay.cycle.slice(1)} billing</span><span class="badge ${owed > 0 ? "badge-red" : "badge-green"}">${owed > 0 ? "Owes " + prefs.currency + owed.toLocaleString() : "All Paid"}</span></div>
       ${
         payments.length
           ? payments
@@ -2476,19 +2651,24 @@
     </div>
     <div class="card">
       <div class="card-title"><span>📋</span> Session History (${sessions.length})</div>
-      ${sessions.length ? sessions.map((sess) => `<div class="session-item"><div style="flex:1;min-width:0"><div class="session-date">📅 ${sess.date}</div><div class="session-meta">${sess.duration || 60} min${sess.subject ? " · " + sess.subject : ""}</div>${sess.notes ? '<div style="font-size:.78rem;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📝 ' + sess.notes + "</div>" : ""}</div><div class="flex-gap" style="flex-shrink:0"><span class="badge ${sess.payment === "paid" ? "badge-green" : "badge-yellow"}">${sess.payment === "paid" ? "Paid" : "Unpaid"}</span><div class="icon-btn" onclick="openEditSession(${sess.id})" style="width:30px;height:30px;font-size:.8rem">✏️</div><div class="icon-btn" onclick="confirmAction('session',${sess.id})" style="width:30px;height:30px;font-size:.8rem;color:var(--danger)">🗑️</div></div></div>`).join("") : '<p style="color:var(--text3);font-size:.85rem;text-align:center">No sessions yet.</p>'}
+      ${sessions.length ? sessions.map((sess) => `<div class="session-item"><div style="flex:1;min-width:0"><div class="session-date">📅 ${sess.date}</div><div class="session-meta">${sess.duration || 60} min${sess.subject ? " · " + sess.subject : ""}</div>${sess.notes ? '<div style="font-size:.78rem;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📝 ' + sess.notes + "</div>" : ""}</div><div class="flex-gap" style="flex-shrink:0"><span class="badge ${pay.cycle === "daily" ? (sess.payment === "paid" ? "badge-green" : "badge-yellow") : "badge-gray"}">${pay.cycle === "daily" ? (sess.payment === "paid" ? "Paid" : "Unpaid") : pay.cycle + " billed"}</span><div class="icon-btn" onclick="openEditSession(${sess.id})" style="width:30px;height:30px;font-size:.8rem">✏️</div><div class="icon-btn" onclick="confirmAction('session',${sess.id})" style="width:30px;height:30px;font-size:.8rem;color:var(--danger)">🗑️</div></div></div>`).join("") : '<p style="color:var(--text3);font-size:.85rem;text-align:center">No sessions yet.</p>'}
     </div>`;
         setTimeout(() => renderStudentBarChart(s.id), 50);
       }
 
       // SESSIONS
       function openLogModal(sid) {
+        const st = appData.students.find((x) => x.id === sid);
+        const isDaily = (st?.paymentCycle || "daily") === "daily";
         document.getElementById("log-student-id").value = sid;
         document.getElementById("log-date").valueAsDate = new Date();
         document.getElementById("log-duration").value = prefs.defaultDuration;
         document.getElementById("log-subject").value = "";
         document.getElementById("log-notes").value = "";
         document.getElementById("log-payment").value = "unpaid";
+        document
+          .getElementById("log-payment-group")
+          ?.classList.toggle("hidden", !isDaily);
         toggleModal("log-modal", true);
       }
       function saveSession() {
@@ -2539,12 +2719,17 @@
       function openEditSession(id) {
         const s = appData.sessions.find((x) => x.id === id);
         if (!s) return;
+        const st = appData.students.find((x) => x.id === s.studentId);
+        const isDaily = (st?.paymentCycle || "daily") === "daily";
         document.getElementById("edit-session-id").value = id;
         document.getElementById("edit-date").value = s.date;
         document.getElementById("edit-duration").value = s.duration || 60;
         document.getElementById("edit-subject").value = s.subject || "";
         document.getElementById("edit-notes").value = s.notes || "";
         document.getElementById("edit-payment").value = s.payment || "unpaid";
+        document
+          .getElementById("edit-payment-group")
+          ?.classList.toggle("hidden", !isDaily);
         toggleModal("edit-session-modal", true);
       }
       function updateSession() {
@@ -2568,10 +2753,31 @@
 
       // PAYMENTS
       function openPaymentModal(sid) {
+        const st = appData.students.find((s) => s.id === sid);
+        const cycle = st?.paymentCycle || "daily";
         document.getElementById("pay-student-id").value = sid;
         document.getElementById("pay-amount").value = "";
         document.getElementById("pay-date").valueAsDate = new Date();
         document.getElementById("pay-note").value = "";
+        const amountLabel = document.getElementById("pay-amount-label");
+        const cycleHint = document.getElementById("pay-cycle-hint");
+        if (amountLabel) {
+          amountLabel.innerHTML = `${
+            cycle === "daily"
+              ? "Class Payment"
+              : cycle === "weekly"
+                ? "Weekly Payment"
+                : "Monthly Payment"
+          } (<span class="currency-label">${prefs.currency}</span>)`;
+        }
+        if (cycleHint) {
+          cycleHint.textContent =
+            cycle === "daily"
+              ? "Payments are matched against class dues."
+              : cycle === "weekly"
+                ? "Payments are tracked against weekly billing cycles."
+                : "Payments are tracked against monthly billing cycles.";
+        }
         toggleModal("payment-modal", true);
       }
       function savePayment() {
@@ -2590,8 +2796,9 @@
           date,
           note: document.getElementById("pay-note").value.trim(),
         });
-        const rate = appData.students.find((s) => s.id === sid)?.rate || 0;
-        if (rate > 0) {
+        const st = appData.students.find((s) => s.id === sid);
+        const rate = st?.rate || 0;
+        if ((st?.paymentCycle || "daily") === "daily" && rate > 0) {
           let rem = amount;
           appData.sessions
             .filter((s) => s.studentId === sid && s.payment !== "paid")
@@ -2760,10 +2967,7 @@
         }
         let owed = 0;
         appData.students.forEach((s) => {
-          owed +=
-            appData.sessions.filter(
-              (x) => x.studentId === s.id && x.payment !== "paid",
-            ).length * (s.rate || 0);
+          owed += getStudentPaymentSummary(s).owed;
         });
         if (owed > 0)
           ins.push(
@@ -2797,7 +3001,20 @@
         el.innerHTML = r
           .map((s) => {
             const st = appData.students.find((x) => x.id === s.studentId);
-            return `<div class="session-item"><div><div class="session-date">${st?.name || "Unknown"}</div><div class="session-meta">${s.date} · ${s.duration || 60}min${s.subject ? " · " + s.subject : ""}</div></div><span class="badge ${s.payment === "paid" ? "badge-green" : "badge-yellow"}">${s.payment === "paid" ? "Paid" : "Unpaid"}</span></div>`;
+            const cycle = st?.paymentCycle || "daily";
+            const badgeClass =
+              cycle === "daily"
+                ? s.payment === "paid"
+                  ? "badge-green"
+                  : "badge-yellow"
+                : "badge-gray";
+            const badgeText =
+              cycle === "daily"
+                ? s.payment === "paid"
+                  ? "Paid"
+                  : "Unpaid"
+                : `${cycle} billed`;
+            return `<div class="session-item"><div><div class="session-date">${st?.name || "Unknown"}</div><div class="session-meta">${s.date} · ${s.duration || 60}min${s.subject ? " · " + s.subject : ""}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div>`;
           })
           .join("");
       }
@@ -3047,22 +3264,28 @@
                   d.getFullYear() === now.getFullYear()
                 );
               });
-              const owed =
-                ss.filter((x) => x.payment !== "paid").length * (s.rate || 0);
-              return { s, total: ss.length, month: ms.length, owed };
+              const pay = getStudentPaymentSummary(s);
+              return {
+                s,
+                total: ss.length,
+                month: ms.length,
+                target: Math.max(0, parseInt(s.monthlyRequiredClasses) || 0),
+                owed: pay.owed,
+                cycle: s.paymentCycle || "daily",
+              };
             })
             .sort((a, b) => b.total - a.total);
         const mt = Math.max(...rows.map((r) => r.total), 1);
-        return `<div class="card"><div class="card-title"><span>👥</span> Student Comparison</div>${rows.map((r) => `<div style="margin-bottom:14px"><div class="flex-between" style="margin-bottom:5px"><div class="flex-gap"><div class="color-dot" style="background:${r.s.color || "var(--primary)"}"></div><span style="font-weight:600">${r.s.name}</span>${r.s.grade ? '<span class="badge badge-gray">' + r.s.grade + "</span>" : ""}</div><div class="flex-gap"><span class="badge badge-blue">${r.month}/mo</span>${r.owed > 0 ? '<span class="badge badge-red">' + prefs.currency + r.owed.toLocaleString() + "</span>" : '<span class="badge badge-green">Paid</span>'}</div></div><div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">${r.total} total sessions</div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (r.total / mt)}%;background:${r.s.color || "var(--primary)"}"></div></div></div>`).join("")}</div>`;
+        return `<div class="card"><div class="card-title"><span>👥</span> Student Comparison</div>${rows.map((r) => `<div style="margin-bottom:14px"><div class="flex-between" style="margin-bottom:5px"><div class="flex-gap"><div class="color-dot" style="background:${r.s.color || "var(--primary)"}"></div><span style="font-weight:600">${r.s.name}</span>${r.s.grade ? '<span class="badge badge-gray">' + r.s.grade + "</span>" : ""}</div><div class="flex-gap"><span class="badge badge-blue">${r.month}/${r.target} classes</span><span class="badge badge-gray">${r.cycle}</span>${r.owed > 0 ? '<span class="badge badge-red">' + prefs.currency + r.owed.toLocaleString() + "</span>" : '<span class="badge badge-green">Paid</span>'}</div></div><div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">${r.total} total sessions</div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (r.total / mt)}%;background:${r.s.color || "var(--primary)"}"></div></div></div>`).join("")}</div>`;
       }
       function renderIncomeAnalytics() {
         const now = new Date();
         let te = 0,
           to = 0;
         appData.students.forEach((s) => {
-          const ss = appData.sessions.filter((x) => x.studentId === s.id);
-          te += ss.length * (s.rate || 0);
-          to += ss.filter((x) => x.payment !== "paid").length * (s.rate || 0);
+          const pay = getStudentPaymentSummary(s);
+          te += pay.totalBilled;
+          to += pay.owed;
         });
         const mr = [];
         for (let i = 5; i >= 0; i--) {
@@ -3119,6 +3342,7 @@
       function renderAll() {
         if (window.appData) appData = window.appData;
         if (window.prefs) prefs = window.prefs;
+        normalizeStudentSettings(false);
         renderDashboard();
         if (currentView === "students") {
           renderStudentTabs();
