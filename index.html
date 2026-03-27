@@ -1786,7 +1786,7 @@
         onAuthStateChanged,
         updateProfile,
         GoogleAuthProvider,
-        signInWithPopup,
+        signInWithRedirect,
       } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
       import {
         getFirestore,
@@ -1842,7 +1842,7 @@
         };
         window.__fbSignOut = () => signOut(auth);
         window.__fbGoogleSignIn = () =>
-          signInWithPopup(auth, new GoogleAuthProvider());
+          signInWithRedirect(auth, new GoogleAuthProvider());
         window.__fbReady = true;
       } else {
         console.info(
