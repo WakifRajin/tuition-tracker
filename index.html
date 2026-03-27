@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
+    <link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+    
     <meta charset="UTF-8" />
     <meta
       name="viewport"
