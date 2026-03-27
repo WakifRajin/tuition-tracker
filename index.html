@@ -212,6 +212,30 @@
         cursor: pointer;
         text-decoration: underline;
       }
+      .credit-link {
+        color: var(--text);
+        font-weight: 700;
+        text-decoration: none;
+        background-image: linear-gradient(
+          120deg,
+          var(--primary) 0%,
+          var(--accent) 100%
+        );
+        background-size: 100% 0.12em;
+        background-repeat: no-repeat;
+        background-position: 0 100%;
+        transition:
+          color 0.2s ease,
+          background-size 0.2s ease,
+          opacity 0.2s ease;
+      }
+      .credit-link:hover,
+      .credit-link:focus-visible {
+        color: var(--primary);
+        background-size: 100% 100%;
+        opacity: 0.95;
+        outline: none;
+      }
 
       /* SYNC BAR */
       #sync-bar {
@@ -1487,7 +1511,14 @@
           <div class="card-title"><span>ℹ️</span> App Info</div>
           <p style="font-size: 0.85rem; color: var(--text2); line-height: 1.6">
             <strong>Tuition Tracker Pro</strong> v3.0<br />For teachers &
-            tutors.<br />Data syncs to Firebase when signed in.
+            tutors.<br />Made with ❤️ by
+            <a
+              class="credit-link"
+              href="https://github.com/WakifRajin"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Wakif Rajin</a
+            >
           </p>
         </div>
       </div>
