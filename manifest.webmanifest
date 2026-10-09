@@ -1,0 +1,20 @@
+{
+  "name": "TuitionPro — Tuition Tracker",
+  "short_name": "TuitionPro",
+  "description": "Track classes, billing and payments for your tuition students.",
+  "id": "./",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f6fb",
+  "theme_color": "#5b5ef4",
+  "categories": ["education", "productivity", "finance"],
+  "icons": [
+    { "src": "logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Students", "url": "./#/students" },
+    { "name": "Insights", "url": "./#/analytics" }
+  ]
+}

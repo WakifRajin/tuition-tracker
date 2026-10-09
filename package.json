@@ -1,0 +1,15 @@
+{
+  "name": "tuition-tracker",
+  "version": "4.0.0",
+  "private": true,
+  "description": "TuitionPro – track classes, billing and payments for private tutors. Static PWA, no build step.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx --yes http-server@14.1.1 . -p 5173 -c-1",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

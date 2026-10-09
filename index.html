@@ -1,3566 +1,438 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>TuitionPro — Tuition tracker for tutors</title>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+      name="description"
+      content="Track classes, billing and payments for your private tuition students. Works offline and syncs across devices."
     />
+    <meta name="theme-color" content="#f5f6fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="TuitionPro" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta property="og:title" content="TuitionPro" />
+    <meta property="og:description" content="Track classes, billing and payments for your tuition students." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="logo.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
 
-    <link rel="icon" type="image/svg+xml" href="logo.svg">
-    
-    <!-- Google tag (gtag.js) -->
+    <!-- Apply the saved theme before first paint to avoid a flash. -->
+    <script>
+      try {
+        var t = localStorage.getItem("tuitionpro.theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@700;800&display=swap"
+    />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="modulepreload" href="js/app.js" />
+    <script type="module" src="js/app.js"></script>
+
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Y7VHXZ2VL"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-7Y7VHXZ2VL');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-7Y7VHXZ2VL");
     </script>
-    
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <title>Tuition Tracker Pro</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --primary: #5b5ef4;
-        --primary-light: #7b7ef6;
-        --primary-dim: rgba(91, 94, 244, 0.12);
-        --accent: #f97316;
-        --accent-dim: rgba(249, 115, 22, 0.12);
-        --success: #22c55e;
-        --success-dim: rgba(34, 197, 94, 0.12);
-        --danger: #ef4444;
-        --danger-dim: rgba(239, 68, 68, 0.12);
-        --warning: #eab308;
-        --warning-dim: rgba(234, 179, 8, 0.12);
-        --bg: #f4f5fb;
-        --surface: #ffffff;
-        --surface2: #f0f1f8;
-        --surface3: #e8e9f4;
-        --border: rgba(0, 0, 0, 0.08);
-        --text: #1a1b2e;
-        --text2: #4b4d6b;
-        --text3: #8b8daa;
-        --shadow: 0 4px 20px rgba(91, 94, 244, 0.08);
-        --shadow-lg: 0 8px 40px rgba(91, 94, 244, 0.15);
-        --radius: 16px;
-        --radius-sm: 10px;
-        --nav-h: 70px;
-        --header-h: 64px;
-      }
-      [data-theme="dark"] {
-        --bg: #0f0f1a;
-        --surface: #1a1b2e;
-        --surface2: #21223a;
-        --surface3: #2c2d4a;
-        --border: rgba(255, 255, 255, 0.08);
-        --text: #e8e9f8;
-        --text2: #9b9db8;
-        --text3: #5a5c7a;
-        --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-      }
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html,
-      body {
-        overflow-x: hidden;
-        width: 100%;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        font-family: "DM Sans", sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        padding-bottom: calc(
-          var(--nav-h) + env(safe-area-inset-bottom, 0px) + 16px
-        );
-        transition:
-          background 0.3s,
-          color 0.3s;
-        -webkit-tap-highlight-color: transparent;
-      }
-      canvas {
-        width: 100% !important;
-        max-width: 100%;
-      }
-
-      /* AUTH */
-      #auth-screen {
-        position: fixed;
-        inset: 0;
-        z-index: 500;
-        background: var(--bg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        animation: fadeIn 0.3s ease;
-      }
-      .auth-card {
-        width: 100%;
-        max-width: 400px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 32px 28px;
-        box-shadow: var(--shadow-lg);
-      }
-      .auth-logo {
-        font-family: "Syne", sans-serif;
-        font-size: 1.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-align: center;
-        margin-bottom: 4px;
-      }
-      .auth-subtitle {
-        text-align: center;
-        font-size: 0.85rem;
-        color: var(--text3);
-        margin-bottom: 24px;
-      }
-      .auth-tabs {
-        display: flex;
-        gap: 4px;
-        background: var(--surface2);
-        padding: 4px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-      }
-      .auth-tab {
-        flex: 1;
-        text-align: center;
-        padding: 8px;
-        border-radius: 9px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        color: var(--text3);
-      }
-      .auth-tab.active {
-        background: var(--surface);
-        color: var(--primary);
-        box-shadow: var(--shadow);
-      }
-      .auth-divider {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 16px 0;
-        color: var(--text3);
-        font-size: 0.78rem;
-      }
-      .auth-divider::before,
-      .auth-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--border);
-      }
-      .google-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 100%;
-        padding: 11px;
-        border-radius: var(--radius-sm);
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        font-family: "DM Sans", sans-serif;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        color: var(--text);
-      }
-      .google-btn:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-      .auth-error {
-        padding: 10px 14px;
-        border-radius: var(--radius-sm);
-        background: var(--danger-dim);
-        color: var(--danger);
-        font-size: 0.82rem;
-        margin-bottom: 12px;
-        display: none;
-      }
-      .auth-footer {
-        text-align: center;
-        margin-top: 14px;
-        font-size: 0.8rem;
-        color: var(--text3);
-      }
-      .auth-footer a {
-        color: var(--primary);
-        text-decoration: none;
-        cursor: pointer;
-      }
-      .auth-forgot-wrap {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: -4px;
-        margin-bottom: 12px;
-      }
-      .auth-forgot {
-        border: 0;
-        background: transparent;
-        color: var(--primary);
-        font-size: 0.8rem;
-        font-family: "DM Sans", sans-serif;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 2px 0;
-      }
-      .auth-forgot:hover {
-        text-decoration: underline;
-      }
-      .auth-offline {
-        text-align: center;
-        margin-top: 12px;
-        font-size: 0.78rem;
-        color: var(--text3);
-        cursor: pointer;
-        text-decoration: underline;
-      }
-      .credit-link {
-        color: var(--text);
-        font-weight: 700;
-        text-decoration: none;
-        background-image: linear-gradient(
-          120deg,
-          var(--primary) 0%,
-          var(--accent) 100%
-        );
-        background-size: 100% 0.12em;
-        background-repeat: no-repeat;
-        background-position: 0 100%;
-        transition:
-          color 0.2s ease,
-          background-size 0.2s ease,
-          opacity 0.2s ease;
-      }
-      .credit-link:hover,
-      .credit-link:focus-visible {
-        color: var(--primary);
-        background-size: 100% 100%;
-        opacity: 0.95;
-        outline: none;
-      }
-
-      /* SYNC BAR */
-      #sync-bar {
-        height: 3px;
-        width: 100%;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-        position: fixed;
-        top: var(--header-h);
-        left: 0;
-        right: 0;
-        z-index: 99;
-        transform: scaleX(0);
-        transform-origin: left;
-        transition:
-          transform 0.4s ease,
-          opacity 0.3s ease;
-        opacity: 0;
-      }
-      #sync-bar.syncing {
-        transform: scaleX(1);
-        opacity: 1;
-      }
-      #sync-bar.done {
-        transform: scaleX(1);
-        opacity: 0;
-      }
-
-      /* HEADER */
-      .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        height: var(--header-h);
-        background: var(--surface);
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 16px;
-        backdrop-filter: blur(12px);
-        box-shadow: var(--shadow);
-      }
-      .header-title {
-        font-family: "Syne", sans-serif;
-        font-size: 1.15rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      .header-actions {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .icon-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.95rem;
-        transition: 0.2s;
-        flex-shrink: 0;
-      }
-      .icon-btn:hover {
-        background: var(--primary-dim);
-        border-color: var(--primary);
-      }
-      .avatar-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #fff;
-        flex-shrink: 0;
-        border: 2px solid var(--surface);
-        box-shadow: 0 2px 8px rgba(91, 94, 244, 0.3);
-        transition: 0.2s;
-      }
-      .avatar-btn:hover {
-        transform: scale(1.05);
-      }
-
-      /* ACCOUNT PANEL */
-      .account-panel {
-        position: fixed;
-        top: calc(var(--header-h) + 8px);
-        right: 12px;
-        z-index: 300;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 16px;
-        min-width: 240px;
-        box-shadow: var(--shadow-lg);
-        animation: slideDown 0.2s ease;
-      }
-      @keyframes slideDown {
-        from {
-          transform: translateY(-10px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-      .account-panel .user-name {
-        font-weight: 700;
-        font-size: 0.95rem;
-      }
-      .account-panel .user-email {
-        font-size: 0.78rem;
-        color: var(--text3);
-        margin-top: 2px;
-      }
-      .sync-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.82rem;
-        color: var(--text3);
-        padding: 10px 0;
-      }
-      .sync-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--success);
-        flex-shrink: 0;
-      }
-      .sync-dot.offline {
-        background: var(--warning);
-      }
-      .sync-dot.syncing {
-        background: var(--primary);
-        animation: pulse 1s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.3;
-        }
-      }
-
-      /* CONTAINER */
-      .container {
-        padding: calc(var(--header-h) + 16px) 16px 16px;
-        max-width: 640px;
-        margin: auto;
-      }
-
-      /* CARDS */
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 18px;
-        margin-bottom: 14px;
-        box-shadow: var(--shadow);
-        transition:
-          background 0.3s,
-          border 0.3s;
-      }
-      .card-title {
-        font-family: "Syne", sans-serif;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--text2);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .card-title span {
-        font-size: 1.1rem;
-      }
-
-      /* STATS */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-      .stats-grid-4 {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      @media (min-width: 480px) {
-        .stats-grid-4 {
-          grid-template-columns: repeat(4, 1fr);
-        }
-      }
-      .stat-card {
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 14px 12px;
-        text-align: center;
-        transition: 0.2s;
-        position: relative;
-        overflow: hidden;
-      }
-      .stat-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-      }
-      .stat-card.blue::before {
-        background: var(--primary);
-      }
-      .stat-card.orange::before {
-        background: var(--accent);
-      }
-      .stat-card.green::before {
-        background: var(--success);
-      }
-      .stat-card.red::before {
-        background: var(--danger);
-      }
-      .stat-value {
-        font-family: "Syne", sans-serif;
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--text);
-      }
-      .stat-value.small {
-        font-size: 1.2rem;
-      }
-      .stat-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text3);
-        margin-top: 3px;
-      }
-
-      /* FORMS */
-      .form-group {
-        margin-bottom: 12px;
-      }
-      label.form-label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text2);
-        margin-bottom: 6px;
-        letter-spacing: 0.03em;
-      }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 11px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        color: var(--text);
-        font-family: "DM Sans", sans-serif;
-        font-size: 0.95rem;
-        transition: 0.2s;
-        outline: none;
-      }
-      input:focus,
-      select:focus,
-      textarea:focus {
-        border-color: var(--primary);
-        background: var(--surface);
-        box-shadow: 0 0 0 3px var(--primary-dim);
-      }
-      textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
-      select option {
-        background: var(--surface);
-        color: var(--text);
-      }
-
-      /* BUTTONS */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 11px 18px;
-        border-radius: var(--radius-sm);
-        font-family: "DM Sans", sans-serif;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        transition: 0.2s;
-        width: 100%;
-      }
-      .btn:active {
-        transform: scale(0.98);
-      }
-      .btn-primary {
-        background: var(--primary);
-        color: #fff;
-      }
-      .btn-primary:hover {
-        background: var(--primary-light);
-      }
-      .btn-success {
-        background: var(--success);
-        color: #fff;
-      }
-      .btn-danger {
-        background: var(--danger);
-        color: #fff;
-      }
-      .btn-outline {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text);
-      }
-      .btn-outline:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-      .btn-sm {
-        padding: 7px 12px;
-        font-size: 0.82rem;
-        width: auto;
-      }
-
-      /* SESSION ITEMS */
-      .session-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 12px;
-        border-radius: var(--radius-sm);
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        margin-bottom: 8px;
-        gap: 10px;
-      }
-      .session-date {
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-      .session-meta {
-        font-size: 0.78rem;
-        color: var(--text3);
-        margin-top: 2px;
-      }
-
-      /* BADGES */
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 3px 9px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 600;
-      }
-      .badge-blue {
-        background: var(--primary-dim);
-        color: var(--primary);
-      }
-      .badge-green {
-        background: var(--success-dim);
-        color: var(--success);
-      }
-      .badge-red {
-        background: var(--danger-dim);
-        color: var(--danger);
-      }
-      .badge-yellow {
-        background: var(--warning-dim);
-        color: var(--warning);
-      }
-      .badge-gray {
-        background: var(--surface3);
-        color: var(--text3);
-      }
-
-      /* STUDENT TABS */
-      .student-tabs {
-        display: flex;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 12px;
-        margin-bottom: 14px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        min-height: 48px;
-        align-items: center;
-        flex-wrap: nowrap;
-      }
-      .student-tabs::-webkit-scrollbar {
-        display: none;
-      }
-      .tab {
-        padding: 8px 16px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        white-space: nowrap;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        flex-shrink: 0;
-      }
-      .tab.active {
-        background: var(--primary);
-        color: #fff;
-        border-color: var(--primary);
-      }
-      .tab:hover:not(.active) {
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-
-      /* NAV */
-      .nav-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        background: var(--surface);
-        border-top: 1px solid var(--border);
-        display: flex;
-        height: var(--nav-h);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        backdrop-filter: blur(12px);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-        min-height: var(--nav-h);
-      }
-      .nav-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: 0.2s;
-        gap: 2px;
-        font-size: 0.6rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--text3);
-        min-width: 0;
-        padding: 0 4px;
-        user-select: none;
-      }
-      .nav-item .nav-icon {
-        font-size: 1.25rem;
-        transition: transform 0.2s;
-        line-height: 1;
-        flex-shrink: 0;
-      }
-      .nav-item.active {
-        color: var(--primary);
-      }
-      .nav-item.active .nav-icon {
-        transform: scale(1.15);
-      }
-      .nav-item .nav-label {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-      }
-      .nav-item.add-btn .nav-icon-wrap {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.3rem;
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(91, 94, 244, 0.4);
-      }
-
-      /* PROGRESS */
-      .progress-bar {
-        height: 8px;
-        background: var(--surface3);
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 8px;
-      }
-      .progress-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease;
-      }
-
-      /* PAYMENT */
-      .payment-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px;
-        border-radius: var(--radius-sm);
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        margin-bottom: 8px;
-      }
-
-      /* CALENDAR */
-      .mini-cal {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-        margin-top: 10px;
-      }
-      .cal-header {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-        margin-bottom: 4px;
-      }
-      .cal-day-name {
-        text-align: center;
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--text3);
-        text-transform: uppercase;
-      }
-      .cal-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 1px;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: default;
-        transition: 0.15s;
-        color: var(--text2);
-      }
-      .cal-day.has-session {
-        background: var(--primary-dim);
-        color: var(--primary);
-        font-weight: 700;
-      }
-      .cal-day.today {
-        border: 2px solid var(--primary);
-      }
-      .cal-day.other-month {
-        opacity: 0.25;
-      }
-      .cal-day.session-count-2 {
-        background: rgba(91, 94, 244, 0.22);
-      }
-      .cal-day.session-count-3 {
-        background: rgba(91, 94, 244, 0.35);
-        color: var(--primary);
-      }
-
-      /* OVERLAYS */
-      .overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 200;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        animation: fadeIn 0.2s ease;
-      }
-      .overlay.center {
-        align-items: center;
-        padding: 20px;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      .sheet {
-        background: var(--surface);
-        border-radius: 24px 24px 0 0;
-        padding: 20px 20px calc(30px + env(safe-area-inset-bottom, 0px));
-        width: 100%;
-        max-width: 640px;
-        max-height: 90vh;
-        overflow-y: auto;
-        animation: slideUp 0.25s ease;
-      }
-      .sheet.center {
-        border-radius: 24px;
-        max-height: 85vh;
-      }
-      @keyframes slideUp {
-        from {
-          transform: translateY(40px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-      .sheet-handle {
-        width: 40px;
-        height: 4px;
-        background: var(--border);
-        border-radius: 2px;
-        margin: 0 auto 18px;
-      }
-      .sheet-title {
-        font-family: "Syne", sans-serif;
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--text);
-        margin-bottom: 16px;
-      }
-      .confirm-icon {
-        font-size: 2.5rem;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-
-      /* MISC */
-      .search-wrap {
-        position: relative;
-        margin-bottom: 14px;
-      }
-      .search-wrap input {
-        padding-left: 36px;
-      }
-      .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text3);
-      }
-      .insight-row {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        scrollbar-width: none;
-      }
-      .insight-row::-webkit-scrollbar {
-        display: none;
-      }
-      .insight-chip {
-        flex-shrink: 0;
-        padding: 10px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.82rem;
-        white-space: nowrap;
-      }
-      .insight-chip strong {
-        color: var(--primary);
-      }
-      .page-tabs {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 16px;
-        background: var(--surface2);
-        padding: 4px;
-        border-radius: 12px;
-      }
-      .page-tab {
-        flex: 1;
-        text-align: center;
-        padding: 8px;
-        border-radius: 9px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        color: var(--text3);
-      }
-      .page-tab.active {
-        background: var(--surface);
-        color: var(--primary);
-        box-shadow: var(--shadow);
-      }
-      .toggle-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      .toggle-label {
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-      .toggle-desc {
-        font-size: 0.78rem;
-        color: var(--text3);
-      }
-      .toggle {
-        position: relative;
-        width: 44px;
-        height: 24px;
-        background: var(--surface3);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-      .toggle.on {
-        background: var(--primary);
-      }
-      .toggle::after {
-        content: "";
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #fff;
-        transition: 0.3s;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-      }
-      .toggle.on::after {
-        left: 22px;
-      }
-      .empty-state {
-        text-align: center;
-        padding: 32px 20px;
-        color: var(--text3);
-      }
-      .empty-state .empty-icon {
-        font-size: 3rem;
-        margin-bottom: 12px;
-        opacity: 0.5;
-      }
-      .empty-state p {
-        font-size: 0.9rem;
-        margin-bottom: 16px;
-      }
-      .toast-wrap {
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        pointer-events: none;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        align-items: center;
-      }
-      .toast {
-        padding: 10px 20px;
-        border-radius: 40px;
-        background: var(--text);
-        color: var(--bg);
-        font-size: 0.85rem;
-        font-weight: 600;
-        box-shadow: var(--shadow-lg);
-        animation: toastAnim 0.3s ease;
-        white-space: nowrap;
-      }
-      @keyframes toastAnim {
-        from {
-          transform: translateY(-10px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-      .section-label {
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text3);
-        margin: 18px 0 10px;
-      }
-      .flex-between {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .flex-gap {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .hidden {
-        display: none !important;
-      }
-      .divider {
-        height: 1px;
-        background: var(--border);
-        margin: 12px 0;
-      }
-      .color-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        flex-shrink: 0;
-      }
-      .subject-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        background: var(--primary-dim);
-        color: var(--primary);
-        margin: 2px;
-      }
-      .subject-pill .remove {
-        cursor: pointer;
-        opacity: 0.6;
-      }
-      .subject-pill .remove:hover {
-        opacity: 1;
-      }
-      .streak-display {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        background: linear-gradient(
-          135deg,
-          var(--accent-dim),
-          var(--primary-dim)
-        );
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--border);
-      }
-      .streak-num {
-        font-family: "Syne", sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--accent);
-      }
-      .ico {
-        width: 1em;
-        height: 1em;
-        vertical-align: -0.125em;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        flex-shrink: 0;
-      }
-      .mt8 {
-        margin-top: 8px;
-      }
-    </style>
   </head>
   <body>
-    <!-- ICON SPRITE -->
-    <svg width='0' height='0' style='position:absolute' aria-hidden='true'>
-      <symbol id='i-book' viewBox='0 0 24 24'><path d='M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4z'/><path d='M20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z'/></symbol>
-      <symbol id='i-cloud' viewBox='0 0 24 24'><path d='M7 18a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.8 8 4.5 4.5 0 0 1 17 18z'/></symbol>
-      <symbol id='i-search' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7'/><path d='m20 20-4-4'/></symbol>
-      <symbol id='i-moon' viewBox='0 0 24 24'><path d='M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z'/></symbol>
-      <symbol id='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></symbol>
-      <symbol id='i-refresh' viewBox='0 0 24 24'><path d='M21 12a9 9 0 1 1-3-6.7L21 8'/><path d='M21 3v5h-5'/></symbol>
-      <symbol id='i-logout' viewBox='0 0 24 24'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><path d='m16 17 5-5-5-5M21 12H9'/></symbol>
-      <symbol id='i-bulb' viewBox='0 0 24 24'><path d='M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z'/></symbol>
-      <symbol id='i-zap' viewBox='0 0 24 24'><path d='M13 2 3 14h9l-1 8 10-12h-9z'/></symbol>
-      <symbol id='i-check' viewBox='0 0 24 24'><path d='M20 6 9 17l-5-5'/></symbol>
-      <symbol id='i-chart' viewBox='0 0 24 24'><path d='M3 3v18h18'/><path d='M7 15l4-4 3 3 5-6'/></symbol>
-      <symbol id='i-calendar' viewBox='0 0 24 24'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></symbol>
-      <symbol id='i-clock' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></symbol>
-      <symbol id='i-users' viewBox='0 0 24 24'><circle cx='9' cy='7' r='4'/><path d='M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2'/><path d='M16 3a4 4 0 0 1 0 8M21 21v-2a4 4 0 0 0-3-3.9'/></symbol>
-      <symbol id='i-settings' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/><path d='M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1'/><circle cx='12' cy='12' r='7'/></symbol>
-      <symbol id='i-download' viewBox='0 0 24 24'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3'/></symbol>
-      <symbol id='i-upload' viewBox='0 0 24 24'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12'/></symbol>
-      <symbol id='i-trash' viewBox='0 0 24 24'><path d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6'/></symbol>
-      <symbol id='i-info' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 16v-4M12 8h.01'/></symbol>
-      <symbol id='i-heart' viewBox='0 0 24 24'><path d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z'/></symbol>
-      <symbol id='i-home' viewBox='0 0 24 24'><path d='M3 10.5 12 3l9 7.5V21H3z'/></symbol>
-      <symbol id='i-plus' viewBox='0 0 24 24'><path d='M12 5v14M5 12h14'/></symbol>
-      <symbol id='i-trend' viewBox='0 0 24 24'><path d='M22 7 13.5 15.5l-5-5L2 17'/></symbol>
-      <symbol id='i-card' viewBox='0 0 24 24'><rect x='2' y='5' width='20' height='14' rx='2'/><path d='M2 10h20'/></symbol>
-      <symbol id='i-list' viewBox='0 0 24 24'><path d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/></symbol>
-      <symbol id='i-alert' viewBox='0 0 24 24'><path d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'/><path d='M12 9v4M12 17h.01'/></symbol>
-      <symbol id='i-flame' viewBox='0 0 24 24'><path d='M12 22a7 7 0 0 0 7-7c0-4-3-6-4-10-2 2-2 4-3 5-1-2-1-4-2-6C7 8 5 11 5 15a7 7 0 0 0 7 7z'/></symbol>
-      <symbol id='i-sunrise' viewBox='0 0 24 24'><path d='M17 18a5 5 0 0 0-10 0M12 9V5M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 6l-4-4-4 4'/></symbol>
-      <symbol id='i-star' viewBox='0 0 24 24'><path d='m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z'/></symbol>
-      <symbol id='i-user' viewBox='0 0 24 24'><circle cx='12' cy='8' r='4'/><path d='M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1'/></symbol>
-      <symbol id='i-edit' viewBox='0 0 24 24'><path d='M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/></symbol>
-      <symbol id='i-note' viewBox='0 0 24 24'><path d='M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z'/><path d='M14 3v6h6M8 13h8M8 17h5'/></symbol>
-      <symbol id='i-phone' viewBox='0 0 24 24'><path d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z'/></symbol>
-      <symbol id='i-mail' viewBox='0 0 24 24'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 6-10 7L2 6'/></symbol>
-      <symbol id='i-smile' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01'/></symbol>
-      <symbol id='i-wallet' viewBox='0 0 24 24'><rect x='2' y='6' width='20' height='14' rx='2'/><path d='M16 13h2M2 10h20'/></symbol>
-      <symbol id='i-hourglass' viewBox='0 0 24 24'><path d='M5 2h14M5 22h14M7 2v4a5 5 0 0 0 10 0V2M7 22v-4a5 5 0 0 1 10 0v4'/></symbol>
-      <symbol id='i-x' viewBox='0 0 24 24'><path d='M18 6 6 18M6 6l12 12'/></symbol>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4z" /><path d="M20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z" /></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.8 8 4.5 4.5 0 0 1 17 18z" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></symbol>
+      <symbol id="i-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="m10 17 5-5-5-5M15 12H3" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /><path d="M16 3a4 4 0 0 1 0 8M21 21v-2a4 4 0 0 0-3-3.9" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 16v-4M12 8h.01" /></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z" /></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" /><path d="M21 12h-5a2 2 0 0 0 0 4h5z" /></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-4-3-6-4-10-2 2-2 4-3 5-1-2-1-4-2-6C7 8 5 11 5 15a7 7 0 0 0 7 7z" /></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></symbol>
+      <symbol id="i-note" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6M8 13h8M8 17h5" /></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" /></symbol>
+      <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+      <symbol id="i-archive" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4" /></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></symbol>
+      <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></symbol>
     </svg>
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen">
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Shown until we know whether someone is signed in. -->
+    <div class="splash" id="splash" role="status">
+      <div class="splash-inner">
+        <span class="brand"><span class="brand-mark"><svg class="ico"><use href="#i-cap" /></svg></span>TuitionPro</span>
+        <div class="spinner" aria-hidden="true"></div>
+        <span class="visually-hidden">Loading…</span>
+        <noscript>TuitionPro needs JavaScript to run.</noscript>
+      </div>
+    </div>
+
+    <!-- ============================================================ AUTH -->
+    <div class="auth" id="auth-screen" hidden>
       <div class="auth-card">
-        <div class="auth-logo">TuitionPro</div>
-        <div class="auth-subtitle">
-          Sign in to sync data across all your devices
+        <h1 class="brand"><span class="brand-mark"><svg class="ico"><use href="#i-cap" /></svg></span>TuitionPro</h1>
+        <p class="auth-lede" id="auth-lede">Sign in to keep your classes and payments in sync across devices.</p>
+
+        <div class="seg block" role="tablist" aria-label="Account" style="margin-bottom: 18px">
+          <button type="button" role="tab" id="tab-signin" aria-selected="true" data-action="auth-mode" data-mode="signin">Sign in</button>
+          <button type="button" role="tab" id="tab-signup" aria-selected="false" data-action="auth-mode" data-mode="signup">Create account</button>
         </div>
-        <div class="auth-tabs">
-          <div
-            class="auth-tab active"
-            id="tab-signin"
-            onclick="switchAuthTab('signin')"
-          >
-            Sign In
+
+        <div class="alert" id="auth-error" role="alert" hidden></div>
+        <div class="alert info" id="auth-info" role="status" hidden></div>
+
+        <form id="auth-form" novalidate>
+          <div class="field" data-signup hidden>
+            <label for="auth-name">Your name</label>
+            <input id="auth-name" name="name" autocomplete="name" maxlength="80" placeholder="e.g. Mr. Rahman" />
           </div>
-          <div
-            class="auth-tab"
-            id="tab-signup"
-            onclick="switchAuthTab('signup')"
-          >
-            Sign Up
+          <div class="field">
+            <label for="auth-email">Email</label>
+            <input id="auth-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />
+            <span class="error">Enter a valid email address.</span>
           </div>
-        </div>
-        <div id="auth-error" class="auth-error"></div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input
-            type="email"
-            id="auth-email"
-            placeholder="you@email.com"
-            autocomplete="email"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input
-            type="password"
-            id="auth-password"
-            placeholder="••••••••"
-            onkeydown="if (event.key === 'Enter') submitAuth();"
-          />
-        </div>
-        <div class="auth-forgot-wrap" id="auth-forgot-wrap">
-          <button class="auth-forgot" onclick="resetPassword()">
-            Forgot password?
-          </button>
-        </div>
-        <div id="signup-extra" class="hidden">
-          <div class="form-group">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" id="auth-confirm" placeholder="••••••••" />
+          <div class="field">
+            <label for="auth-password">Password</label>
+            <div class="input-affix end">
+              <input id="auth-password" name="password" type="password" required minlength="6" autocomplete="current-password" aria-describedby="auth-pass-hint" />
+              <button type="button" class="btn icon sm affix-btn" data-action="toggle-password" aria-label="Show password" aria-pressed="false">
+                <svg class="ico"><use href="#i-eye" /></svg>
+              </button>
+            </div>
+            <span class="hint" id="auth-pass-hint" data-signup hidden>At least 8 characters.</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Your Name</label>
-            <input type="text" id="auth-name" placeholder="e.g. Mr. Rahman" />
+          <div class="auth-alt" data-signin>
+            <span></span>
+            <button type="button" class="btn ghost sm" data-action="reset-password">Forgot password?</button>
           </div>
-        </div>
-        <button
-          class="btn btn-primary"
-          id="auth-submit-btn"
-          onclick="submitAuth()"
-        >
-          Sign In
-        </button>
-        <!-- Google Auth Button has been left visually, but may require extra setup in Firebase to function correctly. Email/pass will work perfectly -->
-        <div class="auth-divider">or</div>
-        <button class="google-btn" onclick="signInGoogle()">
-          <svg width="18" height="18" viewBox="0 0 48 48">
-            <path
-              fill="#EA4335"
-              d="M24 9.5c3.2 0 5.9 1.1 8.1 2.9l6-6C34.4 3.2 29.5 1 24 1 14.6 1 6.6 6.5 2.7 14.5l7 5.4C11.6 13.4 17.3 9.5 24 9.5z"
-            />
-            <path
-              fill="#4285F4"
-              d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.4c-.5 2.8-2.1 5.1-4.5 6.7l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M9.7 28.4A14.6 14.6 0 0 1 9.5 24c0-1.5.3-3 .7-4.4l-7-5.4A23.9 23.9 0 0 0 .1 24c0 3.8.9 7.4 2.6 10.6l7-5.4-.1-.7z"
-            />
-            <path
-              fill="#34A853"
-              d="M24 47c5.4 0 10-1.8 13.3-4.8l-7-5.4C28.6 38.5 26.4 39.5 24 39.5c-6.5 0-12-4.3-14-10.1l-7 5.4C6.5 41.5 14.6 47 24 47z"
-            />
+          <button class="btn primary block" type="submit" id="auth-submit">Sign in</button>
+        </form>
+
+        <div class="divider-text">or</div>
+        <button type="button" class="btn block" data-action="google-signin">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.2 0 5.9 1.1 8.1 2.9l6-6C34.4 3.2 29.5 1 24 1 14.6 1 6.6 6.5 2.7 14.5l7 5.4C11.6 13.4 17.3 9.5 24 9.5z" />
+            <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.4c-.5 2.8-2.1 5.1-4.5 6.7l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z" />
+            <path fill="#FBBC05" d="M9.7 28.4A14.6 14.6 0 0 1 9.5 24c0-1.5.3-3 .7-4.4l-7-5.4A23.9 23.9 0 0 0 .1 24c0 3.8.9 7.4 2.6 10.6l7-5.4-.1-.7z" />
+            <path fill="#34A853" d="M24 47c5.4 0 10-1.8 13.3-4.8l-7-5.4C28.6 38.5 26.4 39.5 24 39.5c-6.5 0-12-4.3-14-10.1l-7 5.4C6.5 41.5 14.6 47 24 47z" />
           </svg>
           Continue with Google
         </button>
-        <div class="auth-footer" id="auth-footer-link">
-          <a onclick="switchAuthTab('signup')"
-            >Don't have an account? Sign up →</a
-          >
-        </div>
-        <div class="auth-offline" onclick="useOffline()">
-          Continue without account (local only)
-        </div>
+
+        <p class="auth-foot">
+          Just trying it out?
+          <button type="button" class="btn ghost sm" data-action="use-local">Use without an account</button><br />
+          <span class="small">Data stays on this device only.</span>
+        </p>
       </div>
     </div>
 
-    <!-- SYNC BAR -->
-    <div id="sync-bar"></div>
+    <!-- ============================================================ APP -->
+    <div id="app" hidden>
+      <header class="app-header">
+        <a class="brand" href="#/"><span class="brand-mark"><svg class="ico"><use href="#i-cap" /></svg></span>TuitionPro</a>
+        <div class="header-actions">
+          <span class="sync-pill" id="sync-pill" data-status="local" role="status">On this device</span>
+          <button type="button" class="btn icon" data-action="open-search" aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)">
+            <svg class="ico"><use href="#i-search" /></svg>
+          </button>
+          <button type="button" class="avatar" id="avatar-btn" popovertarget="account-menu" aria-label="Account menu">?</button>
+        </div>
+      </header>
 
-    <!-- HEADER -->
-    <div class="header hidden" id="main-header">
-      <div class="header-title">TuitionPro</div>
-      <div class="header-actions">
-        <div class="icon-btn" id="sync-btn" onclick="manualSync()" title="Sync">
-          <svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg>
+      <div id="account-menu" class="account-menu" popover>
+        <div class="who">
+          <strong id="menu-name">—</strong>
+          <span class="muted small" id="menu-email">—</span>
         </div>
-        <div class="icon-btn" onclick="toggleSearch()" title="Search"><svg class='ico' aria-hidden='true'><use href='#i-search'/></svg></div>
-        <div class="icon-btn" onclick="toggleDark()" id="theme-btn"><svg class='ico' aria-hidden='true'><use href='#i-moon'/></svg></div>
-        <div class="avatar-btn" id="avatar-btn" onclick="toggleAccountPanel()">
-          ?
-        </div>
+        <a class="menu-item" href="#/settings" data-action="close-menu"><svg class="ico"><use href="#i-settings" /></svg>Settings</a>
+        <button type="button" class="menu-item" data-action="export-json"><svg class="ico"><use href="#i-download" /></svg>Export backup</button>
+        <button type="button" class="menu-item" data-action="sign-in" id="menu-signin" hidden><svg class="ico"><use href="#i-login" /></svg>Sign in to sync</button>
+        <button type="button" class="menu-item danger" data-action="sign-out" id="menu-signout"><svg class="ico"><use href="#i-logout" /></svg>Sign out</button>
+      </div>
+
+      <div class="layout">
+        <nav class="nav" aria-label="Main">
+          <span class="nav-brand brand"><span class="brand-mark"><svg class="ico"><use href="#i-cap" /></svg></span>TuitionPro</span>
+          <a href="#/" data-nav="dashboard" data-order="1"><svg class="ico"><use href="#i-home" /></svg><span>Home</span></a>
+          <a href="#/students" data-nav="students" data-order="2"><svg class="ico"><use href="#i-users" /></svg><span>Students</span></a>
+          <button type="button" class="nav-cta" data-action="log-class" aria-label="Log a class">
+            <svg class="ico"><use href="#i-plus" /></svg><span class="nav-cta-label">Log a class</span>
+          </button>
+          <a href="#/analytics" data-nav="analytics" data-order="3"><svg class="ico"><use href="#i-chart" /></svg><span>Insights</span></a>
+          <a href="#/settings" data-nav="settings" data-order="4"><svg class="ico"><use href="#i-settings" /></svg><span>Settings</span></a>
+        </nav>
+        <main class="main" id="main" tabindex="-1">
+          <div id="banner-slot"></div>
+          <div id="view"></div>
+        </main>
       </div>
     </div>
 
-    <!-- ACCOUNT PANEL -->
-    <div id="account-panel" class="account-panel hidden">
-      <div
-        style="
-          margin-bottom: 12px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid var(--border);
-        "
-      >
-        <div class="user-name" id="panel-name">—</div>
-        <div class="user-email" id="panel-email">—</div>
-      </div>
-      <div class="sync-status">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-txt">Connected</span>
-      </div>
-      <div class="divider"></div>
-      <button
-        class="btn btn-outline btn-sm"
-        onclick="manualSync()"
-        style="margin-bottom: 8px"
-      >
-        <svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync Now
-      </button>
-      <button class="btn btn-danger btn-sm" onclick="signOutUser()">
-        <svg class='ico' aria-hidden='true'><use href='#i-logout'/></svg> Sign Out
-      </button>
-    </div>
+    <!-- ============================================================ DIALOGS -->
 
-    <!-- MAIN -->
-    <div class="container hidden" id="main-content">
-      <!-- DASHBOARD -->
-      <div id="view-dashboard">
-        <div id="search-bar-wrap" class="hidden">
-          <div class="search-wrap">
-            <span class="search-icon"><svg class='ico' aria-hidden='true'><use href='#i-search'/></svg></span>
-            <input
-              type="text"
-              id="global-search"
-              placeholder="Search students, sessions…"
-              oninput="renderSearch()"
-            />
-          </div>
-          <div id="search-results"></div>
+    <!-- Student -->
+    <dialog class="sheet" id="student-dialog" aria-labelledby="student-dialog-title" closedby="any">
+      <form class="sheet-form" id="student-form" novalidate>
+        <div class="sheet-head">
+          <h2 id="student-dialog-title">Add student</h2>
+          <button type="button" class="btn icon" data-close aria-label="Close"><svg class="ico"><use href="#i-x" /></svg></button>
         </div>
-        <div
-          class="card"
-          style="
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: #fff;
-            border: none;
-          "
-        >
-          <div
-            style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 4px"
-            id="dash-greeting"
-          >
-            Good morning
+        <div class="sheet-body">
+          <div class="field">
+            <label for="s-name">Full name</label>
+            <input id="s-name" name="name" required maxlength="120" autocomplete="off" />
+            <span class="error">A name is required.</span>
           </div>
-          <div
-            style="
-              font-family: &quot;Syne&quot;, sans-serif;
-              font-size: 1.3rem;
-              font-weight: 800;
-            "
-          >
-            Your Tuition Overview
-          </div>
-          <div
-            style="font-size: 0.85rem; opacity: 0.75; margin-top: 4px"
-            id="dash-date"
-          ></div>
-        </div>
-        <div class="stats-grid stats-grid-4">
-          <div class="stat-card blue">
-            <div class="stat-value" id="dash-month-classes">0</div>
-            <div class="stat-label">This Month</div>
-          </div>
-          <div class="stat-card orange">
-            <div class="stat-value" id="dash-total-classes">0</div>
-            <div class="stat-label">All Time</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-value small" id="dash-month-income">৳0</div>
-            <div class="stat-label">Est. Income</div>
-          </div>
-          <div class="stat-card red">
-            <div class="stat-value" id="dash-students">0</div>
-            <div class="stat-label">Students</div>
-          </div>
-        </div>
-        <div class="section-label"><svg class='ico' aria-hidden='true'><use href='#i-bulb'/></svg> Insights</div>
-        <div class="insight-row" id="insight-row"></div>
-        <div class="card" style="margin-top: 14px">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-zap'/></svg></span> Quick Log</div>
-          <div class="form-group">
-            <label class="form-label">Student</label
-            ><select id="quick-student"></select>
-          </div>
-          <div class="stats-grid">
-            <div class="form-group">
-              <label class="form-label">Date</label
-              ><input type="date" id="quick-date" />
+          <div class="field-row">
+            <div class="field">
+              <label for="s-grade">Class / level</label>
+              <input id="s-grade" name="grade" maxlength="60" placeholder="e.g. Class 8" />
             </div>
-            <div class="form-group">
-              <label class="form-label">Duration (min)</label
-              ><input
-                type="number"
-                id="quick-duration"
-                value="60"
-                min="15"
-                step="15"
-              />
+            <div class="field">
+              <label for="s-target">Classes per month</label>
+              <input id="s-target" name="monthlyTarget" type="number" min="0" max="62" step="1" inputmode="numeric" />
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Subject (optional)</label
-            ><input
-              type="text"
-              id="quick-subject"
-              placeholder="e.g. Algebra…"
-            />
+
+          <fieldset class="field">
+            <legend class="field-label">Billing</legend>
+            <div class="seg block" id="s-cycle">
+              <label><input type="radio" name="paymentCycle" value="daily" checked />Per class</label>
+              <label><input type="radio" name="paymentCycle" value="weekly" />Weekly</label>
+              <label><input type="radio" name="paymentCycle" value="monthly" />Monthly</label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="s-amount" id="s-amount-label">Fee per class</label>
+            <div class="input-affix">
+              <span class="affix currency-symbol">৳</span>
+              <input id="s-amount" name="amount" type="number" min="0" step="any" inputmode="decimal" placeholder="0" />
+            </div>
+            <span class="hint" id="s-amount-hint">Each class you log is billed at this fee.</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Notes (optional)</label
-            ><textarea
-              id="quick-notes"
-              rows="2"
-              placeholder="Class notes…"
-            ></textarea>
+
+          <div class="field">
+            <label for="s-subject-input">Subjects</label>
+            <div class="tag-input" id="s-subjects">
+              <input id="s-subject-input" placeholder="Type a subject and press Enter" maxlength="60" aria-describedby="s-subjects-hint" />
+            </div>
+            <span class="hint" id="s-subjects-hint">Press Enter or comma to add.</span>
           </div>
-          <button class="btn btn-primary" onclick="logSession()">
-            <svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Log Class
-          </button>
-        </div>
-        <div class="card">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-chart'/></svg></span> Monthly Activity</div>
-          <canvas id="monthly-chart" height="180"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-title flex-between">
-            <span><span><svg class='ico' aria-hidden='true'><use href='#i-calendar'/></svg></span> Class Calendar</span>
-            <div class="flex-gap">
-              <div
-                class="icon-btn"
-                onclick="calNav(-1)"
-                style="width: 30px; height: 30px; font-size: 0.85rem"
-              >
-                ◀
-              </div>
-              <span
-                id="cal-label"
-                style="
-                  font-size: 0.85rem;
-                  font-weight: 700;
-                  min-width: 110px;
-                  text-align: center;
-                "
-              ></span>
-              <div
-                class="icon-btn"
-                onclick="calNav(1)"
-                style="width: 30px; height: 30px; font-size: 0.85rem"
-              >
-                ▶
-              </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="s-phone">Phone</label>
+              <input id="s-phone" name="phone" type="tel" maxlength="40" autocomplete="off" inputmode="tel" />
+            </div>
+            <div class="field">
+              <label for="s-guardian">Guardian</label>
+              <input id="s-guardian" name="guardian" maxlength="120" autocomplete="off" placeholder="Optional" />
             </div>
           </div>
-          <div class="cal-header" id="cal-day-names"></div>
-          <div class="mini-cal" id="mini-calendar"></div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-clock'/></svg></span> Recent Sessions</div>
-          <div id="recent-sessions"></div>
-        </div>
-      </div>
-
-      <!-- STUDENTS -->
-      <div id="view-students" class="hidden">
-        <div class="student-tabs" id="tab-list"></div>
-        <div id="empty-state-students" class="empty-state hidden">
-          <div class="empty-icon"><svg class='ico' aria-hidden='true'><use href='#i-users'/></svg></div>
-          <p>No students yet.</p>
-          <button
-            class="btn btn-primary"
-            onclick="openAddStudent()"
-            style="width: auto; padding: 10px 24px"
-          >
-            + Add Student
-          </button>
-        </div>
-        <div id="student-detail" class="hidden"></div>
-      </div>
-
-      <!-- ANALYTICS -->
-      <div id="view-analytics" class="hidden">
-        <div class="page-tabs" id="analytics-tabs">
-          <div class="page-tab active" onclick="switchAnalyticsTab('overview')">
-            Overview
+          <div class="field">
+            <label for="s-notes">Notes</label>
+            <textarea id="s-notes" name="notes" maxlength="2000" rows="2" placeholder="Address, schedule, goals…"></textarea>
           </div>
-          <div class="page-tab" onclick="switchAnalyticsTab('students')">
-            By Student
-          </div>
-          <div class="page-tab" onclick="switchAnalyticsTab('income')">
-            Income
-          </div>
+          <fieldset class="field">
+            <legend class="field-label">Colour</legend>
+            <div class="swatches" id="s-colors"></div>
+          </fieldset>
         </div>
-        <div id="analytics-content"></div>
-      </div>
+        <div class="sheet-foot">
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn primary" id="student-submit">Add student</button>
+        </div>
+      </form>
+    </dialog>
 
-      <!-- SETTINGS -->
-      <div id="view-settings" class="hidden">
-        <div class="card">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-settings'/></svg></span> Preferences</div>
-          <div class="toggle-row">
-            <div>
-              <div class="toggle-label">Dark Mode</div>
-              <div class="toggle-desc">Switch to dark theme</div>
+    <!-- Session -->
+    <dialog class="sheet" id="session-dialog" aria-labelledby="session-dialog-title" closedby="any">
+      <form class="sheet-form" id="session-form" novalidate>
+        <div class="sheet-head">
+          <div>
+            <h2 id="session-dialog-title">Log a class</h2>
+            <p id="session-dialog-sub"></p>
+          </div>
+          <button type="button" class="btn icon" data-close aria-label="Close"><svg class="ico"><use href="#i-x" /></svg></button>
+        </div>
+        <div class="sheet-body">
+          <div class="field" id="session-student-field">
+            <label for="session-student">Student</label>
+            <select id="session-student" name="studentId" required></select>
+            <span class="error">Choose a student.</span>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="session-date">Date</label>
+              <input id="session-date" name="date" type="date" required />
+              <span class="error">Pick a date.</span>
             </div>
-            <div class="toggle" id="dark-toggle" onclick="toggleDark()"></div>
+            <div class="field">
+              <label for="session-duration">Minutes</label>
+              <input id="session-duration" name="duration" type="number" min="5" max="600" step="5" required inputmode="numeric" />
+              <span class="error">5–600 minutes.</span>
+            </div>
           </div>
-          <div class="toggle-row">
-            <div><div class="toggle-label">Currency Symbol</div></div>
-            <select
-              id="currency-select"
-              style="width: auto; padding: 6px 10px"
-              onchange="savePref()"
-            >
-              <option value="৳">৳ BDT</option>
-              <option value="₹">₹ INR</option>
-              <option value="$">$ USD</option>
-              <option value="£">£ GBP</option>
-              <option value="€">€ EUR</option>
-              <option value="¥">¥ JPY</option>
-            </select>
+          <div class="duration-presets" id="duration-presets" aria-label="Duration presets" style="margin: -6px 0 14px"></div>
+          <div class="field">
+            <label for="session-subject">Topic / subject</label>
+            <input id="session-subject" name="subject" maxlength="80" list="session-subject-list" autocomplete="off" placeholder="e.g. Algebra — quadratic equations" />
+            <datalist id="session-subject-list"></datalist>
           </div>
-          <div class="toggle-row" style="border: none">
-            <div><div class="toggle-label">Default Duration</div></div>
-            <select
-              id="default-duration"
-              style="width: auto; padding: 6px 10px"
-              onchange="savePref()"
-            >
-              <option value="45">45 min</option>
-              <option value="60" selected>60 min</option>
-              <option value="90">90 min</option>
-              <option value="120">2 hrs</option>
-            </select>
+          <div class="field">
+            <label for="session-notes">Notes</label>
+            <textarea id="session-notes" name="notes" rows="3" maxlength="2000" placeholder="What was covered, homework given…"></textarea>
           </div>
+          <label class="check" id="session-paid-wrap">
+            <input type="checkbox" name="paid" id="session-paid" />
+            <span><strong>Paid at this class</strong><br /><span class="small muted" id="session-paid-hint"></span></span>
+          </label>
         </div>
-        <div class="card">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg></span> Account & Sync</div>
-          <div
-            id="settings-sync-info"
-            style="
-              font-size: 0.85rem;
-              color: var(--text2);
-              line-height: 1.6;
-              margin-bottom: 12px;
-            "
-          ></div>
-          <button class="btn btn-outline" onclick="manualSync()">
-            <svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync Now
-          </button>
-          <button class="btn btn-outline mt8" onclick="exportData()">
-            <svg class='ico' aria-hidden='true'><use href='#i-download'/></svg> Export Backup (JSON)
-          </button>
-          <div style="margin: 8px 0">
-            <label class="btn btn-outline" style="cursor: pointer"
-              ><svg class='ico' aria-hidden='true'><use href='#i-upload'/></svg> Import Backup<input
-                type="file"
-                accept=".json"
-                onchange="importData(event)"
-                style="display: none"
-            /></label>
-          </div>
-          <button class="btn btn-danger" onclick="confirmAction('all')">
-            <svg class='ico' aria-hidden='true'><use href='#i-trash'/></svg> Clear All Data
-          </button>
+        <div class="sheet-foot">
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn primary" id="session-submit"><svg class="ico"><use href="#i-check" /></svg>Log class</button>
         </div>
-        <div class="card">
-          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-info'/></svg></span> App Info</div>
-          <p style="font-size: 0.85rem; color: var(--text2); line-height: 1.6">
-            <strong>Tuition Tracker Pro</strong> v3.0<br />For teachers &
-            tutors.<br />Made with <svg class='ico' aria-hidden='true'><use href='#i-heart'/></svg> by
-            <a
-              class="credit-link"
-              href="https://github.com/WakifRajin"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Wakif Rajin</a
-            >
-          </p>
-        </div>
-      </div>
-    </div>
+      </form>
+    </dialog>
 
-    <!-- NAV -->
-    <div class="nav-bar hidden" id="main-nav">
-      <div
-        class="nav-item active"
-        id="nav-dashboard"
-        onclick="switchView('dashboard')"
-      >
-        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-home'/></svg></div>
-        <span class="nav-label">Home</span>
-      </div>
-      <div class="nav-item" id="nav-students" onclick="switchView('students')">
-        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-users'/></svg></div>
-        <span class="nav-label">Students</span>
-      </div>
-      <div class="nav-item add-btn" onclick="openAddStudent()">
-        <div class="nav-icon-wrap"><svg class='ico' aria-hidden='true'><use href='#i-plus'/></svg></div>
-      </div>
-      <div
-        class="nav-item"
-        id="nav-analytics"
-        onclick="switchView('analytics')"
-      >
-        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-chart'/></svg></div>
-        <span class="nav-label">Analytics</span>
-      </div>
-      <div class="nav-item" id="nav-settings" onclick="switchView('settings')">
-        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-settings'/></svg></div>
-        <span class="nav-label">Settings</span>
-      </div>
-    </div>
-
-    <!-- MODALS -->
-    <div id="student-modal" class="overlay hidden">
-      <div class="sheet center" style="max-width: 400px">
-        <div class="sheet-title" id="student-modal-title">Add New Student</div>
-        <div class="form-group">
-          <label class="form-label">Full Name *</label
-          ><input type="text" id="s-name" placeholder="Student name" />
-        </div>
-        <div class="stats-grid">
-          <div class="form-group">
-            <label class="form-label">Rate per Class</label
-            ><input type="number" id="s-rate" placeholder="500" min="0" />
+    <!-- Payment -->
+    <dialog class="sheet narrow" id="payment-dialog" aria-labelledby="payment-dialog-title" closedby="any">
+      <form class="sheet-form" id="payment-form" novalidate>
+        <div class="sheet-head">
+          <div>
+            <h2 id="payment-dialog-title">Record payment</h2>
+            <p id="payment-dialog-sub"></p>
           </div>
-          <div class="form-group">
-            <label class="form-label">Grade / Level</label
-            ><input type="text" id="s-grade" placeholder="Class 8" />
+          <button type="button" class="btn icon" data-close aria-label="Close"><svg class="ico"><use href="#i-x" /></svg></button>
+        </div>
+        <div class="sheet-body">
+          <div class="field">
+            <label for="payment-amount">Amount</label>
+            <div class="input-affix">
+              <span class="affix currency-symbol">৳</span>
+              <input id="payment-amount" name="amount" type="number" min="0.01" step="any" required inputmode="decimal" />
+            </div>
+            <span class="error">Enter an amount greater than zero.</span>
+            <div class="duration-presets" id="payment-presets"></div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="payment-date">Date</label>
+              <input id="payment-date" name="date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="payment-method">Method</label>
+              <select id="payment-method" name="method">
+                <option value="cash">Cash</option>
+                <option value="bkash">bKash</option>
+                <option value="nagad">Nagad</option>
+                <option value="bank">Bank transfer</option>
+                <option value="card">Card</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="payment-note">Note</label>
+            <input id="payment-note" name="note" maxlength="300" placeholder="e.g. October fees" autocomplete="off" />
           </div>
         </div>
-        <div class="stats-grid">
-          <div class="form-group">
-            <label class="form-label">Required Classes / Month</label
-            ><input
-              type="number"
-              id="s-monthly-required"
-              placeholder="8"
-              min="0"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Payment Cycle</label>
-            <select id="s-payment-cycle" onchange="syncBillingInputState()">
-              <option value="daily">Daily (per class)</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </div>
+        <div class="sheet-foot">
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn success" id="payment-submit"><svg class="ico"><use href="#i-wallet" /></svg>Save payment</button>
         </div>
-        <div class="form-group">
-          <label class="form-label" id="s-billing-label">Charge per Class</label
-          ><input
-            type="number"
-            id="s-billing-amount"
-            placeholder="Uses Rate per Class"
-            min="0"
-          />
+      </form>
+    </dialog>
+
+    <!-- Day details (calendar) -->
+    <dialog class="sheet narrow" id="day-dialog" aria-labelledby="day-dialog-title" closedby="any">
+      <div class="sheet-form">
+        <div class="sheet-head">
+          <h2 id="day-dialog-title">Day</h2>
+          <button type="button" class="btn icon" data-close aria-label="Close"><svg class="ico"><use href="#i-x" /></svg></button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Subjects (press Enter)</label
-          ><input
-            type="text"
-            id="s-subject-input"
-            placeholder="Add subject…"
-            onkeydown="addSubject(event)"
-          />
-          <div id="s-subjects-list" style="margin-top: 8px"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone</label
-          ><input type="text" id="s-phone" placeholder="01XXXXXXXXX" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label
-          ><textarea
-            id="s-notes"
-            placeholder="Notes about this student…"
-            rows="2"
-          ></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Color Tag</label>
-          <div
-            class="flex-gap"
-            id="color-picker"
-            style="flex-wrap: wrap; gap: 10px; padding: 6px 0"
-          ></div>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 4px">
-          <button
-            class="btn btn-outline"
-            onclick="toggleModal('student-modal', false)"
-            style="flex: 1"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn-primary"
-            onclick="saveStudent()"
-            style="flex: 2"
-            id="student-save-btn"
-          >
-            Save Student
-          </button>
+        <div class="sheet-body" id="day-dialog-body"></div>
+        <div class="sheet-foot">
+          <button type="button" class="btn primary" id="day-dialog-log"><svg class="ico"><use href="#i-plus" /></svg>Log a class on this day</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
-    <div id="log-modal" class="overlay hidden">
-      <div class="sheet">
-        <div class="sheet-handle"></div>
-        <div class="sheet-title">Log Session</div>
-        <input type="hidden" id="log-student-id" />
-        <div class="stats-grid">
-          <div class="form-group">
-            <label class="form-label">Date *</label
-            ><input type="date" id="log-date" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Duration (min)</label
-            ><input
-              type="number"
-              id="log-duration"
-              value="60"
-              min="15"
-              step="15"
-            />
+    <!-- Confirm -->
+    <dialog class="sheet narrow" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-msg">
+      <form class="sheet-form" method="dialog">
+        <div class="sheet-body" style="padding-top: 22px">
+          <div class="confirm-icon" id="confirm-icon"><svg class="ico"><use href="#i-alert" /></svg></div>
+          <h2 id="confirm-title" style="font-size: 1.15rem; margin-bottom: 6px">Are you sure?</h2>
+          <p id="confirm-msg" class="muted" style="margin-bottom: 8px"></p>
+          <div class="field" id="confirm-type-wrap" hidden>
+            <label for="confirm-type" id="confirm-type-label"></label>
+            <input id="confirm-type" autocomplete="off" />
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Subject</label
-          ><input type="text" id="log-subject" placeholder="e.g. Algebra…" />
+        <div class="sheet-foot">
+          <button class="btn" value="cancel">Cancel</button>
+          <button class="btn danger" value="ok" id="confirm-ok">Confirm</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label
-          ><textarea id="log-notes" placeholder="What was covered…"></textarea>
-        </div>
-        <div class="form-group" id="log-payment-group">
-          <label class="form-label">Payment Status</label>
-          <select id="log-payment">
-            <option value="unpaid"><svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Unpaid</option>
-            <option value="paid"><svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Paid</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px">
-          <button
-            class="btn btn-outline"
-            onclick="toggleModal('log-modal', false)"
-            style="flex: 1"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn-primary"
-            onclick="saveSession()"
-            style="flex: 2"
-          >
-            <svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Log This Class
-          </button>
-        </div>
+      </form>
+    </dialog>
+
+    <!-- Search -->
+    <dialog id="search-dialog" aria-label="Search" closedby="any">
+      <div class="palette-input">
+        <svg class="ico muted"><use href="#i-search" /></svg>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Search students, topics, notes…"
+          autocomplete="off"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="search-results"
+          aria-autocomplete="list"
+        />
+        <kbd>Esc</kbd>
       </div>
-    </div>
+      <div class="palette-results" id="search-results" role="listbox" aria-label="Results"></div>
+    </dialog>
 
-    <div id="payment-modal" class="overlay hidden">
-      <div class="sheet">
-        <div class="sheet-handle"></div>
-        <div class="sheet-title">Log Payment</div>
-        <input type="hidden" id="pay-student-id" />
-        <div class="form-group">
-          <label class="form-label" id="pay-amount-label"
-            >Amount (<span class="currency-label">৳</span>)</label
-          ><input type="number" id="pay-amount" placeholder="500" min="0" />
-          <div id="pay-cycle-hint" style="font-size: 0.75rem; color: var(--text3); margin-top: 6px"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label
-          ><input type="date" id="pay-date" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Note (optional)</label
-          ><input type="text" id="pay-note" placeholder="Month of March…" />
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px">
-          <button
-            class="btn btn-outline"
-            onclick="toggleModal('payment-modal', false)"
-            style="flex: 1"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn-success"
-            onclick="savePayment()"
-            style="flex: 2"
-          >
-            <svg class='ico' aria-hidden='true'><use href='#i-wallet'/></svg> Save Payment
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="edit-session-modal" class="overlay hidden">
-      <div class="sheet">
-        <div class="sheet-handle"></div>
-        <div class="sheet-title">Edit Session</div>
-        <input type="hidden" id="edit-session-id" />
-        <div class="stats-grid">
-          <div class="form-group">
-            <label class="form-label">Date</label
-            ><input type="date" id="edit-date" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Duration (min)</label
-            ><input type="number" id="edit-duration" min="15" step="15" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Subject</label
-          ><input type="text" id="edit-subject" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label
-          ><textarea id="edit-notes"></textarea>
-        </div>
-        <div class="form-group" id="edit-payment-group">
-          <label class="form-label">Payment Status</label>
-          <select id="edit-payment">
-            <option value="unpaid"><svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Unpaid</option>
-            <option value="paid"><svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Paid</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px">
-          <button
-            class="btn btn-outline"
-            onclick="toggleModal('edit-session-modal', false)"
-            style="flex: 1"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn-primary"
-            onclick="updateSession()"
-            style="flex: 2"
-          >
-            Save Changes
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="confirm-modal" class="overlay center hidden">
-      <div class="sheet center" style="max-width: 380px; padding: 28px">
-        <div class="confirm-icon" id="confirm-icon"><svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg></div>
-        <div
-          style="
-            font-family: &quot;Syne&quot;, sans-serif;
-            font-size: 1.1rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            text-align: center;
-          "
-          id="confirm-title"
-        >
-          Confirm
-        </div>
-        <div
-          style="
-            font-size: 0.88rem;
-            color: var(--text2);
-            margin-bottom: 20px;
-            text-align: center;
-            line-height: 1.5;
-          "
-          id="confirm-msg"
-        ></div>
-        <div style="display: flex; gap: 8px">
-          <button
-            class="btn btn-outline"
-            onclick="toggleModal('confirm-modal', false)"
-            style="flex: 1"
-          >
-            Cancel
-          </button>
-          <button class="btn btn-danger" id="confirm-btn" style="flex: 1">
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="toast-wrap" id="toast-wrap"></div>
-
-    <!-- ===== FIREBASE MODULE ===== -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-      import {
-        getAuth,
-        createUserWithEmailAndPassword,
-        signInWithEmailAndPassword,
-        sendPasswordResetEmail,
-        signOut,
-        onAuthStateChanged,
-        updateProfile,
-        GoogleAuthProvider,
-        signInWithRedirect,
-      } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        getDoc,
-        setDoc,
-        onSnapshot,
-        serverTimestamp,
-      } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-      // ============================================================
-      // 🔥 INTEGRATED REAL FIREBASE CONFIGURATION
-      // ============================================================
-      const firebaseConfig = {
-        apiKey: "AIzaSyC8oo9OfFR_oJfBvK3mKw425TnCoWEG6zs",
-        authDomain: "tuitionpro-d1856.firebaseapp.com",
-        projectId: "tuitionpro-d1856",
-        storageBucket: "tuitionpro-d1856.firebasestorage.app",
-        messagingSenderId: "475690490967",
-        appId: "1:475690490967:web:6511277326958ee96f5712",
-        measurementId: "G-7Y7VHXZ2VL",
-      };
-      // ============================================================
-
-      const configured = true; // It is configured now!
-      let auth, db, unsub;
-
-      if (configured) {
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        // Auth state
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            window.__user = user;
-            showApp(user);
-            await loadCloud(user.uid);
-            startRealtimeSync(user.uid);
-          } else {
-            window.__user = null;
-            if (!window.__offlineMode) showAuthScreen();
-          }
-        });
-
-        // Sign-in handlers exposed to global scope
-        window.__fbSignIn = (email, pass) =>
-          signInWithEmailAndPassword(auth, email, pass);
-        window.__fbSignUp = async (email, pass, name) => {
-          const cred = await createUserWithEmailAndPassword(auth, email, pass);
-          if (name) await updateProfile(cred.user, { displayName: name });
-          return cred;
-        };
-        window.__fbSignOut = () => signOut(auth);
-        window.__fbGoogleSignIn = () =>
-          signInWithRedirect(auth, new GoogleAuthProvider());
-        window.__fbResetPassword = (email) => sendPasswordResetEmail(auth, email);
-        window.__fbReady = true;
-      } else {
-        console.info(
-          "TuitionPro: Firebase not configured. Running in local mode.",
-        );
-        window.__fbReady = false;
-      }
-
-      async function loadCloud(uid) {
-        try {
-          setSyncStatus("syncing");
-          const snap = await getDoc(doc(db, "users", uid));
-          if (snap.exists()) {
-            const d = snap.data();
-            if (d.appData) {
-              window.appData = d.appData;
-              window.prefs = d.prefs || window.prefs;
-              localStorage.setItem(
-                "tuitionData_v2",
-                JSON.stringify(window.appData),
-              );
-              localStorage.setItem(
-                "tuitionPrefs",
-                JSON.stringify(window.prefs),
-              );
-              window.renderAll?.();
-              window.applyPrefs?.();
-            }
-          }
-          setSyncStatus("online");
-          showToast("<svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg> Data synced");
-        } catch (e) {
-          console.warn("Load error:", e);
-          setSyncStatus("offline");
-        }
-      }
-
-      function startRealtimeSync(uid) {
-        if (unsub) unsub();
-        unsub = onSnapshot(doc(db, "users", uid), (snap) => {
-          if (!snap.exists() || snap.metadata.hasPendingWrites) return;
-          const d = snap.data();
-          if (!d.appData) return;
-          const cloudTime = d.lastUpdated?.toMillis() || 0;
-          const localTime = window.__lastSaveTime || 0;
-          if (cloudTime > localTime) {
-            window.appData = d.appData;
-            window.prefs = d.prefs || window.prefs;
-            localStorage.setItem(
-              "tuitionData_v2",
-              JSON.stringify(window.appData),
-            );
-            window.renderAll?.();
-          }
-        });
-      }
-
-      window.__saveToCloud = async () => {
-        if (!window.__user || !configured) return;
-        try {
-          setSyncStatus("syncing");
-          window.__lastSaveTime = Date.now();
-          await setDoc(
-            doc(db, "users", window.__user.uid),
-            {
-              appData: window.appData,
-              prefs: window.prefs,
-              lastUpdated: serverTimestamp(),
-              userEmail: window.__user.email,
-              userName: window.__user.displayName || "",
-            },
-            { merge: true },
-          );
-          setSyncStatus("online");
-        } catch (e) {
-          console.warn("Save error:", e);
-          setSyncStatus("offline");
-        }
-      };
-
-      window.manualSync = async () => {
-        if (!window.__user) {
-          showToast("<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg> Not signed in");
-          return;
-        }
-        await loadCloud(window.__user.uid);
-        showToast("<svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync complete");
-      };
-
-      // Auth UI helpers (called from non-module script)
-      window.submitAuth = async () => {
-        if (!window.__fbReady) {
-          window.useOffline();
-          return;
-        }
-        const email = document.getElementById("auth-email").value.trim();
-        const pass = document.getElementById("auth-password").value;
-        const isSignup = document
-          .getElementById("tab-signup")
-          .classList.contains("active");
-        const errEl = document.getElementById("auth-error");
-        errEl.style.display = "none";
-        if (!email || !pass) {
-          showAuthErr("Please fill in all fields.");
-          return;
-        }
-        const btn = document.getElementById("auth-submit-btn");
-        btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Please wait…";
-        btn.disabled = true;
-        try {
-          if (isSignup) {
-            const confirm = document.getElementById("auth-confirm").value;
-            const name = document.getElementById("auth-name").value.trim();
-            if (pass !== confirm) {
-              showAuthErr("Passwords do not match.");
-              resetBtn();
-              return;
-            }
-            if (pass.length < 6) {
-              showAuthErr("Password must be 6+ characters.");
-              resetBtn();
-              return;
-            }
-            await window.__fbSignUp(email, pass, name);
-          } else {
-            await window.__fbSignIn(email, pass);
-          }
-        } catch (e) {
-          const msgs = {
-            "auth/user-not-found": "No account found with this email.",
-            "auth/wrong-password": "Incorrect password.",
-            "auth/email-already-in-use": "Email already registered.",
-            "auth/invalid-email": "Invalid email address.",
-            "auth/too-many-requests": "Too many attempts. Try again later.",
-            "auth/network-request-failed":
-              "Network error. Check your connection.",
-            "auth/invalid-credential": "Invalid email or password.",
-          };
-          showAuthErr(msgs[e.code] || e.message);
-          resetBtn();
-        }
-        function resetBtn() {
-          btn.textContent = isSignup ? "Create Account" : "Sign In";
-          btn.disabled = false;
-        }
-      };
-
-      window.resetPassword = async () => {
-        if (!window.__fbReady) {
-          showAuthErr("Password reset is unavailable in offline mode.");
-          return;
-        }
-        const isSignup = document
-          .getElementById("tab-signup")
-          .classList.contains("active");
-        if (isSignup) {
-          showAuthErr("Switch to Sign In to reset your password.");
-          return;
-        }
-        const email = document.getElementById("auth-email").value.trim();
-        if (!email) {
-          showAuthErr("Enter your email first, then tap Forgot password.");
-          return;
-        }
-        try {
-          await window.__fbResetPassword(email);
-          showToast("<svg class='ico' aria-hidden='true'><use href='#i-mail'/></svg> Password reset email sent. Check your inbox.");
-          document.getElementById("auth-error").style.display = "none";
-        } catch (e) {
-          const msgs = {
-            "auth/invalid-email": "Invalid email address.",
-            "auth/user-not-found": "No account found with this email.",
-            "auth/too-many-requests": "Too many attempts. Try again later.",
-            "auth/network-request-failed": "Network error. Check your connection.",
-          };
-          showAuthErr(msgs[e.code] || e.message);
-        }
-      };
-
-      window.signInGoogle = async () => {
-        if (!window.__fbReady) {
-          window.useOffline();
-          return;
-        }
-        try {
-          await window.__fbGoogleSignIn();
-        } catch (e) {
-          if (e.code !== "auth/popup-closed-by-user") showAuthErr(e.message);
-        }
-      };
-
-      window.signOutUser = async () => {
-        if (unsub) unsub();
-        if (window.__fbReady) await window.__fbSignOut();
-        window.__user = null;
-        window.__offlineMode = false;
-        window.appData = { students: [], sessions: [], payments: [] };
-        hideApp();
-        showAuthScreen();
-        showToast("<svg class='ico' aria-hidden='true'><use href='#i-smile'/></svg> Signed out");
-      };
-
-      function showApp(user) {
-        document.getElementById("auth-screen").classList.add("hidden");
-        document.getElementById("main-header").classList.remove("hidden");
-        document.getElementById("main-content").classList.remove("hidden");
-        document.getElementById("main-nav").classList.remove("hidden");
-        const init = (user.displayName || user.email || "?")
-          .charAt(0)
-          .toUpperCase();
-        document.getElementById("avatar-btn").textContent = init;
-        document.getElementById("panel-name").textContent =
-          user.displayName || "User";
-        document.getElementById("panel-email").textContent =
-          user.email || "Offline mode";
-        document.getElementById("settings-sync-info").innerHTML = user.email
-          ? `Signed in as <strong>${user.email}</strong>.<br>Data syncs automatically to the cloud.`
-          : `Running in <strong>offline mode</strong>. Data stored locally only.`;
-        window.renderAll?.();
-        window.applyPrefs?.();
-      }
-
-      function hideApp() {
-        ["main-header", "main-content", "main-nav"].forEach((id) =>
-          document.getElementById(id).classList.add("hidden"),
-        );
-      }
-
-      function showAuthScreen() {
-        document.getElementById("auth-screen").classList.remove("hidden");
-      }
-
-      function setSyncStatus(s) {
-        const bar = document.getElementById("sync-bar");
-        const dot = document.getElementById("sync-dot");
-        const txt = document.getElementById("sync-txt");
-        const btn = document.getElementById("sync-btn");
-        if (s === "syncing") {
-          bar.className = "syncing";
-          dot && (dot.className = "sync-dot syncing");
-          txt && (txt.textContent = "Syncing…");
-          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg>");
-        } else if (s === "online") {
-          bar.className = "done";
-          setTimeout(() => {
-            bar.className = "";
-          }, 900);
-          dot && (dot.className = "sync-dot");
-          txt && (txt.textContent = "Synced ✓");
-          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg>");
-        } else {
-          bar.className = "";
-          dot && (dot.className = "sync-dot offline");
-          txt && (txt.textContent = "Offline");
-          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg>");
-        }
-      }
-
-      function showAuthErr(msg) {
-        const el = document.getElementById("auth-error");
-        el.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg> ";
-        el.append(msg);
-        el.style.display = "block";
-      }
-
-      window.useOffline = () => {
-        window.__offlineMode = true;
-        showApp({ displayName: "Local User", email: null });
-        setSyncStatus("offline");
-      };
-
-      // If Firebase not configured, make offline automatic after 0.5s
-      if (!configured) {
-        setTimeout(() => {
-          if (!window.__user) window.useOffline();
-        }, 500);
-      }
-    </script>
-
-    <!-- ===== APP LOGIC ===== -->
-    <script>
-      let appData = JSON.parse(localStorage.getItem("tuitionData_v2")) || {
-        students: [],
-        sessions: [],
-        payments: [],
-      };
-      let prefs = JSON.parse(localStorage.getItem("tuitionPrefs")) || {
-        dark: false,
-        currency: "৳",
-        defaultDuration: 60,
-      };
-      let activeStudentId = null,
-        editingStudentId = null,
-        tempSubjects = [];
-      let calViewDate = new Date(),
-        analyticsTab = "overview",
-        currentView = "dashboard";
-      let accountPanelOpen = false;
-      const COLORS = [
-        "#5b5ef4",
-        "#f97316",
-        "#22c55e",
-        "#ef4444",
-        "#eab308",
-        "#a855f7",
-        "#06b6d4",
-        "#ec4899",
-      ];
-
-      window.appData = appData;
-      window.prefs = prefs;
-      window.renderAll = renderAll;
-      window.applyPrefs = applyPrefs;
-
-      // AUTH UI
-      function switchAuthTab(tab) {
-        const su = tab === "signup";
-        document.getElementById("tab-signin").classList.toggle("active", !su);
-        document.getElementById("tab-signup").classList.toggle("active", su);
-        document.getElementById("signup-extra").classList.toggle("hidden", !su);
-        document
-          .getElementById("auth-forgot-wrap")
-          .classList.toggle("hidden", su);
-        document.getElementById("auth-submit-btn").textContent = su
-          ? "Create Account"
-          : "Sign In";
-        document.getElementById("auth-footer-link").innerHTML = su
-          ? "<a onclick=\"switchAuthTab('signin')\">← Back to sign in</a>"
-          : "<a onclick=\"switchAuthTab('signup')\">Create an account →</a>";
-        document.getElementById("auth-error").style.display = "none";
-      }
-
-      function toggleAccountPanel() {
-        accountPanelOpen = !accountPanelOpen;
-        document
-          .getElementById("account-panel")
-          .classList.toggle("hidden", !accountPanelOpen);
-      }
-      document.addEventListener("click", (e) => {
-        if (
-          accountPanelOpen &&
-          !e.target.closest("#account-panel") &&
-          !e.target.closest("#avatar-btn")
-        ) {
-          accountPanelOpen = false;
-          document.getElementById("account-panel").classList.add("hidden");
-        }
-      });
-
-      // PREFS
-      function applyPrefs() {
-        if (prefs.dark) {
-          document.documentElement.setAttribute("data-theme", "dark");
-          document.getElementById("dark-toggle")?.classList.add("on");
-          const t = document.getElementById("theme-btn");
-          if (t) t.innerHTML = "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sun\x27/></svg>";
-        } else {
-          document.documentElement.removeAttribute("data-theme");
-          document.getElementById("dark-toggle")?.classList.remove("on");
-          const t = document.getElementById("theme-btn");
-          if (t) t.innerHTML = "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-moon\x27/></svg>";
-        }
-        document
-          .querySelectorAll(".currency-label")
-          .forEach((el) => (el.textContent = prefs.currency));
-        const cs = document.getElementById("currency-select");
-        if (cs) cs.value = prefs.currency;
-        const dd = document.getElementById("default-duration");
-        if (dd) dd.value = prefs.defaultDuration;
-      }
-      function toggleDark() {
-        prefs.dark = !prefs.dark;
-        savePref();
-      }
-      function savePref() {
-        prefs.currency =
-          document.getElementById("currency-select")?.value || prefs.currency;
-        prefs.defaultDuration =
-          parseInt(document.getElementById("default-duration")?.value) || 60;
-        window.prefs = prefs;
-        localStorage.setItem("tuitionPrefs", JSON.stringify(prefs));
-        applyPrefs();
-        renderDashboard();
-        _cloud();
-      }
-      function save() {
-        window.appData = appData;
-        localStorage.setItem("tuitionData_v2", JSON.stringify(appData));
-        _cloud();
-      }
-      function _cloud() {
-        window.__saveToCloud?.();
-      }
-
-      function getWeekKey(dateStr) {
-        const d = new Date(dateStr);
-        if (Number.isNaN(d.getTime())) return "";
-        d.setHours(0, 0, 0, 0);
-        const jan1 = new Date(d.getFullYear(), 0, 1);
-        const dayOffset = Math.floor((d - jan1) / 86400000);
-        const week = Math.floor((dayOffset + jan1.getDay()) / 7) + 1;
-        return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
-      }
-
-      function normalizeStudentSettings(shouldSave = false) {
-        let changed = false;
-        appData.students.forEach((s) => {
-          if (!["daily", "weekly", "monthly"].includes(s.paymentCycle)) {
-            s.paymentCycle = "daily";
-            changed = true;
-          }
-          if (!Number.isFinite(Number(s.monthlyRequiredClasses))) {
-            s.monthlyRequiredClasses = 8;
-            changed = true;
-          }
-          if (!Number.isFinite(Number(s.billingAmount))) {
-            s.billingAmount = Number(s.rate) || 0;
-            changed = true;
-          }
-          if (s.paymentCycle === "daily") {
-            const rate = Number(s.rate) || 0;
-            if ((Number(s.billingAmount) || 0) !== rate) {
-              s.billingAmount = rate;
-              changed = true;
-            }
-          }
-        });
-        if (changed && shouldSave) save();
-      }
-
-      function getMonthlySessionsCount(studentId, baseDate = new Date()) {
-        return appData.sessions.filter((x) => {
-          if (x.studentId !== studentId) return false;
-          const d = new Date(x.date);
-          return (
-            d.getMonth() === baseDate.getMonth() &&
-            d.getFullYear() === baseDate.getFullYear()
-          );
-        }).length;
-      }
-
-      function getStudentPaymentSummary(student) {
-        const cycle = student.paymentCycle || "daily";
-        const sessions = appData.sessions.filter((x) => x.studentId === student.id);
-        const payments = (appData.payments || []).filter((x) => x.studentId === student.id);
-        const paidTotal = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-
-        let chargePerUnit = 0;
-        let dueUnits = 0;
-        let cycleLabel = "per class";
-
-        if (cycle === "weekly") {
-          cycleLabel = "per week";
-          chargePerUnit = Number(student.billingAmount) || 0;
-          dueUnits = new Set(sessions.map((s) => getWeekKey(s.date)).filter(Boolean)).size;
-        } else if (cycle === "monthly") {
-          cycleLabel = "per month";
-          chargePerUnit = Number(student.billingAmount) || 0;
-          dueUnits = new Set(sessions.map((s) => String(s.date || "").slice(0, 7)).filter((k) => k.length === 7)).size;
-        } else {
-          cycleLabel = "per class";
-          chargePerUnit = Number(student.rate) || 0;
-          dueUnits = sessions.length;
-        }
-
-        const totalBilled = dueUnits * chargePerUnit;
-        const owed = Math.max(totalBilled - paidTotal, 0);
-
-        return {
-          cycle,
-          cycleLabel,
-          chargePerUnit,
-          dueUnits,
-          totalBilled,
-          paidTotal,
-          owed,
-          monthlyClasses: getMonthlySessionsCount(student.id),
-          monthlyRequiredClasses: Math.max(0, parseInt(student.monthlyRequiredClasses) || 0),
-        };
-      }
-
-      function syncBillingInputState() {
-        const cycle = document.getElementById("s-payment-cycle")?.value || "daily";
-        const rateInput = document.getElementById("s-rate");
-        const amountInput = document.getElementById("s-billing-amount");
-        const label = document.getElementById("s-billing-label");
-        if (!amountInput || !label || !rateInput) return;
-
-        if (cycle === "daily") {
-          label.textContent = "Charge per Class";
-          amountInput.value = rateInput.value;
-          amountInput.placeholder = "Uses Rate per Class";
-          amountInput.disabled = true;
-        } else if (cycle === "weekly") {
-          label.textContent = "Charge per Week";
-          amountInput.placeholder = "e.g. 2000";
-          amountInput.disabled = false;
-        } else {
-          label.textContent = "Charge per Month";
-          amountInput.placeholder = "e.g. 8000";
-          amountInput.disabled = false;
-        }
-      }
-
-      // INIT
-      (function init() {
-        normalizeStudentSettings(true);
-        applyPrefs();
-        document.getElementById("quick-date").valueAsDate = new Date();
-        document.getElementById("log-date").valueAsDate = new Date();
-        document.getElementById("pay-date").valueAsDate = new Date();
-        document.getElementById("quick-duration").value = prefs.defaultDuration;
-        document
-          .getElementById("s-rate")
-          ?.addEventListener("input", syncBillingInputState);
-      })();
-
-      // NAV
-      function switchView(v) {
-        ["dashboard", "students", "analytics", "settings"].forEach((n) => {
-          document
-            .getElementById("view-" + n)
-            .classList.toggle("hidden", n !== v);
-          document
-            .getElementById("nav-" + n)
-            ?.classList.toggle("active", n === v);
-        });
-        currentView = v;
-        window.scrollTo({ top: 0, behavior: "instant" });
-        if (v === "analytics") renderAnalytics();
-        if (v === "students") {
-          renderStudentTabs();
-          if (activeStudentId) renderStudentDetail();
-        }
-      }
-
-      // SEARCH
-      function toggleSearch() {
-        const el = document.getElementById("search-bar-wrap");
-        el.classList.toggle("hidden");
-        if (!el.classList.contains("hidden"))
-          document.getElementById("global-search").focus();
-      }
-      function renderSearch() {
-        const q = document
-          .getElementById("global-search")
-          .value.toLowerCase()
-          .trim();
-        const el = document.getElementById("search-results");
-        if (!q) {
-          el.innerHTML = "";
-          return;
-        }
-        const sm = appData.students.filter((s) =>
-          s.name.toLowerCase().includes(q),
-        );
-        const ss = appData.sessions.filter(
-          (s) =>
-            (s.subject || "").toLowerCase().includes(q) ||
-            (s.notes || "").toLowerCase().includes(q),
-        );
-        let html = "";
-        if (sm.length) {
-          html += '<div class="section-label">Students</div>';
-          html += sm
-            .map(
-              (
-                s,
-              ) => `<div class="session-item" onclick="goToStudent(${s.id})" style="cursor:pointer">
-      <div><div class="session-date">${s.name}</div><div class="session-meta">${s.grade || ""} ${s.subjects?.join(", ") || ""}</div></div>
-      <span class="badge badge-blue">${appData.sessions.filter((x) => x.studentId === s.id).length} classes</span></div>`,
-            )
-            .join("");
-        }
-        if (ss.length) {
-          html += '<div class="section-label">Sessions</div>';
-          html += ss
-            .slice(0, 5)
-            .map((s) => {
-              const st = appData.students.find((x) => x.id === s.studentId);
-              return `<div class="session-item"><div><div class="session-date">${s.date}</div><div class="session-meta">${st?.name || ""} — ${s.subject || ""}</div></div></div>`;
-            })
-            .join("");
-        }
-        if (!html)
-          html =
-            '<p style="color:var(--text3);font-size:.85rem;text-align:center;padding:12px">No results</p>';
-        el.innerHTML = html;
-      }
-      function goToStudent(id) {
-        activeStudentId = id;
-        document.getElementById("search-bar-wrap").classList.add("hidden");
-        switchView("students");
-      }
-
-      // STUDENTS
-      function openAddStudent() {
-        editingStudentId = null;
-        tempSubjects = [];
-        [
-          "s-name",
-          "s-rate",
-          "s-grade",
-          "s-phone",
-          "s-notes",
-          "s-billing-amount",
-        ].forEach((id) => {
-          document.getElementById(id).value = "";
-        });
-        document.getElementById("s-monthly-required").value = 8;
-        document.getElementById("s-payment-cycle").value = "daily";
-        document.getElementById("student-modal-title").textContent =
-          "Add New Student";
-        document.getElementById("student-save-btn").textContent =
-          "Save Student";
-        renderSubjectPills();
-        renderColorPicker(COLORS[Math.floor(Math.random() * COLORS.length)]);
-        syncBillingInputState();
-        toggleModal("student-modal", true);
-      }
-      function openEditStudent(id) {
-        const s = appData.students.find((x) => x.id === id);
-        if (!s) return;
-        editingStudentId = id;
-        tempSubjects = [...(s.subjects || [])];
-        document.getElementById("s-name").value = s.name;
-        document.getElementById("s-rate").value = s.rate || "";
-        document.getElementById("s-grade").value = s.grade || "";
-        document.getElementById("s-monthly-required").value =
-          parseInt(s.monthlyRequiredClasses) || 8;
-        document.getElementById("s-payment-cycle").value =
-          s.paymentCycle || "daily";
-        document.getElementById("s-billing-amount").value =
-          Number.isFinite(Number(s.billingAmount))
-            ? Number(s.billingAmount)
-            : s.rate || "";
-        document.getElementById("s-phone").value = s.phone || "";
-        document.getElementById("s-notes").value = s.notes || "";
-        document.getElementById("student-modal-title").textContent =
-          "Edit Student";
-        document.getElementById("student-save-btn").textContent =
-          "Save Changes";
-        renderSubjectPills();
-        renderColorPicker(s.color || COLORS[0]);
-        syncBillingInputState();
-        toggleModal("student-modal", true);
-      }
-      let selectedColor = COLORS[0];
-      function renderColorPicker(c) {
-        selectedColor = c || COLORS[0];
-        document.getElementById("color-picker").innerHTML = COLORS.map(
-          (x) =>
-            `<div onclick="selectedColor='${x}';renderColorPicker('${x}')" style="width:28px;height:28px;border-radius:50%;background:${x};cursor:pointer;border:3px solid ${x === selectedColor ? "var(--text)" : "transparent"};transition:.2s"></div>`,
-        ).join("");
-      }
-      function addSubject(e) {
-        if (e.key !== "Enter") return;
-        const v = e.target.value.trim();
-        if (v && !tempSubjects.includes(v)) tempSubjects.push(v);
-        e.target.value = "";
-        renderSubjectPills();
-      }
-      function removeSubject(s) {
-        tempSubjects = tempSubjects.filter((x) => x !== s);
-        renderSubjectPills();
-      }
-      function renderSubjectPills() {
-        document.getElementById("s-subjects-list").innerHTML = tempSubjects
-          .map(
-            (s) =>
-              `<span class="subject-pill">${s}<span class="remove" onclick="removeSubject('${s}')">✕</span></span>`,
-          )
-          .join("");
-      }
-      function saveStudent() {
-        const name = document.getElementById("s-name").value.trim();
-        if (!name) {
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Name is required");
-          return;
-        }
-        const rate = parseFloat(document.getElementById("s-rate").value) || 0;
-        const paymentCycle =
-          document.getElementById("s-payment-cycle").value || "daily";
-        const monthlyRequiredClasses = Math.max(
-          0,
-          parseInt(document.getElementById("s-monthly-required").value) || 0,
-        );
-        let billingAmount =
-          parseFloat(document.getElementById("s-billing-amount").value) || 0;
-        if (paymentCycle === "daily") billingAmount = rate;
-        const sd = {
-          name,
-          rate,
-          grade: document.getElementById("s-grade").value.trim(),
-          phone: document.getElementById("s-phone").value.trim(),
-          notes: document.getElementById("s-notes").value.trim(),
-          subjects: [...tempSubjects],
-          color: selectedColor,
-          monthlyRequiredClasses,
-          paymentCycle,
-          billingAmount,
-        };
-        if (editingStudentId) {
-          const i = appData.students.findIndex(
-            (s) => s.id === editingStudentId,
-          );
-          appData.students[i] = { ...appData.students[i], ...sd };
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Student updated");
-        } else {
-          const ns = { id: Date.now(), ...sd };
-          appData.students.push(ns);
-          activeStudentId = ns.id;
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Student added");
-        }
-        save();
-        toggleModal("student-modal", false);
-        renderStudentTabs();
-        if (activeStudentId) renderStudentDetail();
-        renderDashboard();
-        if (currentView !== "students") switchView("students");
-      }
-      function renderStudentTabs() {
-        const tl = document.getElementById("tab-list"),
-          em = document.getElementById("empty-state-students"),
-          det = document.getElementById("student-detail");
-        if (!appData.students.length) {
-          em.classList.remove("hidden");
-          det.classList.add("hidden");
-          tl.innerHTML = "";
-          return;
-        }
-        em.classList.add("hidden");
-        if (!activeStudentId) activeStudentId = appData.students[0].id;
-        tl.innerHTML = appData.students
-          .map(
-            (s) =>
-              `<div class="tab ${s.id === activeStudentId ? "active" : ""}" onclick="setActiveStudent(${s.id})" style="${s.id === activeStudentId ? "background:" + s.color + ";border-color:" + s.color : ""}">${s.name}</div>`,
-          )
-          .join("");
-        det.classList.remove("hidden");
-        renderStudentDetail();
-      }
-      function setActiveStudent(id) {
-        activeStudentId = id;
-        renderStudentTabs();
-      }
-      function renderStudentDetail() {
-        const s = appData.students.find((x) => x.id === activeStudentId);
-        if (!s) return;
-        const pay = getStudentPaymentSummary(s);
-        const sessions = appData.sessions
-          .filter((x) => x.studentId === activeStudentId)
-          .sort((a, b) => new Date(b.date) - new Date(a.date));
-        const payments = (appData.payments || []).filter(
-          (x) => x.studentId === activeStudentId,
-        );
-        const now = new Date();
-        const ms = sessions.filter((x) => {
-          const d = new Date(x.date);
-          return (
-            d.getMonth() === now.getMonth() &&
-            d.getFullYear() === now.getFullYear()
-          );
-        });
-        const owed = pay.owed;
-        const earned = pay.totalBilled;
-        let streak = 0;
-        const sds = new Set(sessions.map((x) => x.date));
-        let chk = new Date();
-        for (let i = 0; i < 60; i++) {
-          const ds = chk.toISOString().split("T")[0];
-          if (sds.has(ds)) streak++;
-          chk.setDate(chk.getDate() - 1);
-          if (i > 0 && !sds.has(ds)) break;
-        }
-        document.getElementById("student-detail").innerHTML = `
-    <div class="card" style="border-left:4px solid ${s.color || "var(--primary)"}">
-      <div class="flex-between">
-        <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">${s.name}</div>
-          <div style="font-size:.82rem;color:var(--text3);margin-top:3px">${s.grade ? '<span class="badge badge-gray">' + s.grade + "</span> " : ""} ${s.phone ? "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-phone\x27/></svg> " + s.phone : ""} <span class="badge badge-blue" style="margin-left:6px">${pay.monthlyClasses}/${pay.monthlyRequiredClasses} classes this month</span></div>
-        </div>
-        <div class="flex-gap"><div class="icon-btn" onclick="openEditStudent(${s.id})"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-edit\x27/></svg></div><div class="icon-btn" onclick="confirmAction('student',${s.id})" style="color:var(--danger)"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg></div></div>
-      </div>
-      ${s.subjects?.length ? '<div style="margin-top:10px">' + s.subjects.map((x) => '<span class="subject-pill">' + x + "</span>").join("") + "</div>" : ""}
-      ${s.notes ? '<div style="margin-top:10px;font-size:.82rem;color:var(--text2);padding:8px;background:var(--surface2);border-radius:8px"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-note\x27/></svg> ' + s.notes + "</div>" : ""}
-    </div>
-    <div class="stats-grid stats-grid-4">
-      <div class="stat-card blue"><div class="stat-value">${ms.length}</div><div class="stat-label">This Month</div></div>
-      <div class="stat-card orange"><div class="stat-value">${sessions.length}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card green"><div class="stat-value small">${prefs.currency}${earned.toLocaleString()}</div><div class="stat-label">Billed</div></div>
-      <div class="stat-card red"><div class="stat-value small">${prefs.currency}${owed.toLocaleString()}</div><div class="stat-label">Owed</div></div>
-    </div>
-    ${streak > 0 ? '<div class="streak-display" style="margin-bottom:14px"><div><div class="streak-num">' + streak + '</div></div><div><div style="font-weight:700">Streak <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-flame\x27/></svg></div><div style="font-size:.78rem;color:var(--text3)">Consecutive days</div></div></div>' : ""}
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button class="btn btn-primary" onclick="openLogModal(${s.id})" style="flex:2">+ Log Class</button>
-      <button class="btn btn-success" onclick="openPaymentModal(${s.id})" style="flex:1"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg> Pay</button>
-    </div>
-    <div class="card" id="student-bar-chart-wrap"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trend\x27/></svg></span> Last 8 Weeks</div><canvas id="student-bar-chart" height="140"></canvas></div>
-    <div class="card">
-      <div class="card-title flex-between"><span><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-card\x27/></svg></span> Payments</span><span class="badge badge-gray">${pay.cycle.charAt(0).toUpperCase() + pay.cycle.slice(1)} billing</span><span class="badge ${owed > 0 ? "badge-red" : "badge-green"}">${owed > 0 ? "Owes " + prefs.currency + owed.toLocaleString() : "All Paid"}</span></div>
-      ${
-        payments.length
-          ? payments
-              .slice()
-              .reverse()
-              .map(
-                (p) =>
-                  `<div class="payment-item"><div><div style="font-weight:600">${prefs.currency}${p.amount.toLocaleString()}</div><div style="font-size:.78rem;color:var(--text3)">${p.date}${p.note ? " — " + p.note : ""}</div></div><button class="btn btn-outline btn-sm" onclick="confirmAction('payment',${p.id})">✕</button></div>`,
-              )
-              .join("")
-          : '<p style="color:var(--text3);font-size:.85rem">No payments recorded.</p>'
-      }
-    </div>
-    <div class="card">
-      <div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-list\x27/></svg></span> Session History (${sessions.length})</div>
-      ${sessions.length ? sessions.map((sess) => `<div class="session-item"><div style="flex:1;min-width:0"><div class="session-date"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg> ${sess.date}</div><div class="session-meta">${sess.duration || 60} min${sess.subject ? " · " + sess.subject : ""}</div>${sess.notes ? '<div style="font-size:.78rem;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-note\x27/></svg> ' + sess.notes + "</div>" : ""}</div><div class="flex-gap" style="flex-shrink:0"><span class="badge ${pay.cycle === "daily" ? (sess.payment === "paid" ? "badge-green" : "badge-yellow") : "badge-gray"}">${pay.cycle === "daily" ? (sess.payment === "paid" ? "Paid" : "Unpaid") : pay.cycle + " billed"}</span><div class="icon-btn" onclick="openEditSession(${sess.id})" style="width:30px;height:30px;font-size:.8rem"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-edit\x27/></svg></div><div class="icon-btn" onclick="confirmAction('session',${sess.id})" style="width:30px;height:30px;font-size:.8rem;color:var(--danger)"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg></div></div></div>`).join("") : '<p style="color:var(--text3);font-size:.85rem;text-align:center">No sessions yet.</p>'}
-    </div>`;
-        setTimeout(() => renderStudentBarChart(s.id), 50);
-      }
-
-      // SESSIONS
-      function openLogModal(sid) {
-        const st = appData.students.find((x) => x.id === sid);
-        const isDaily = (st?.paymentCycle || "daily") === "daily";
-        document.getElementById("log-student-id").value = sid;
-        document.getElementById("log-date").valueAsDate = new Date();
-        document.getElementById("log-duration").value = prefs.defaultDuration;
-        document.getElementById("log-subject").value = "";
-        document.getElementById("log-notes").value = "";
-        document.getElementById("log-payment").value = "unpaid";
-        document
-          .getElementById("log-payment-group")
-          ?.classList.toggle("hidden", !isDaily);
-        toggleModal("log-modal", true);
-      }
-      function saveSession() {
-        const sid = parseInt(document.getElementById("log-student-id").value),
-          date = document.getElementById("log-date").value;
-        if (!date) {
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Select a date");
-          return;
-        }
-        appData.sessions.push({
-          id: Date.now(),
-          studentId: sid,
-          date,
-          duration:
-            parseInt(document.getElementById("log-duration").value) || 60,
-          subject: document.getElementById("log-subject").value.trim(),
-          notes: document.getElementById("log-notes").value.trim(),
-          payment: document.getElementById("log-payment").value,
-        });
-        save();
-        toggleModal("log-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session logged!");
-        renderAll();
-      }
-      function logSession() {
-        const sid = parseInt(document.getElementById("quick-student").value),
-          date = document.getElementById("quick-date").value;
-        if (!sid || !date) {
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Select student & date");
-          return;
-        }
-        appData.sessions.push({
-          id: Date.now(),
-          studentId: sid,
-          date,
-          duration:
-            parseInt(document.getElementById("quick-duration").value) || 60,
-          subject: document.getElementById("quick-subject").value.trim(),
-          notes: document.getElementById("quick-notes").value.trim(),
-          payment: "unpaid",
-        });
-        save();
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session logged!");
-        document.getElementById("quick-subject").value = "";
-        document.getElementById("quick-notes").value = "";
-        renderAll();
-      }
-      function openEditSession(id) {
-        const s = appData.sessions.find((x) => x.id === id);
-        if (!s) return;
-        const st = appData.students.find((x) => x.id === s.studentId);
-        const isDaily = (st?.paymentCycle || "daily") === "daily";
-        document.getElementById("edit-session-id").value = id;
-        document.getElementById("edit-date").value = s.date;
-        document.getElementById("edit-duration").value = s.duration || 60;
-        document.getElementById("edit-subject").value = s.subject || "";
-        document.getElementById("edit-notes").value = s.notes || "";
-        document.getElementById("edit-payment").value = s.payment || "unpaid";
-        document
-          .getElementById("edit-payment-group")
-          ?.classList.toggle("hidden", !isDaily);
-        toggleModal("edit-session-modal", true);
-      }
-      function updateSession() {
-        const id = parseInt(document.getElementById("edit-session-id").value),
-          idx = appData.sessions.findIndex((x) => x.id === id);
-        if (idx < 0) return;
-        appData.sessions[idx] = {
-          ...appData.sessions[idx],
-          date: document.getElementById("edit-date").value,
-          duration:
-            parseInt(document.getElementById("edit-duration").value) || 60,
-          subject: document.getElementById("edit-subject").value.trim(),
-          notes: document.getElementById("edit-notes").value.trim(),
-          payment: document.getElementById("edit-payment").value,
-        };
-        save();
-        toggleModal("edit-session-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session updated");
-        renderAll();
-      }
-
-      // PAYMENTS
-      function openPaymentModal(sid) {
-        const st = appData.students.find((s) => s.id === sid);
-        const cycle = st?.paymentCycle || "daily";
-        document.getElementById("pay-student-id").value = sid;
-        document.getElementById("pay-amount").value = "";
-        document.getElementById("pay-date").valueAsDate = new Date();
-        document.getElementById("pay-note").value = "";
-        const amountLabel = document.getElementById("pay-amount-label");
-        const cycleHint = document.getElementById("pay-cycle-hint");
-        if (amountLabel) {
-          amountLabel.innerHTML = `${
-            cycle === "daily"
-              ? "Class Payment"
-              : cycle === "weekly"
-                ? "Weekly Payment"
-                : "Monthly Payment"
-          } (<span class="currency-label">${prefs.currency}</span>)`;
-        }
-        if (cycleHint) {
-          cycleHint.textContent =
-            cycle === "daily"
-              ? "Payments are matched against class dues."
-              : cycle === "weekly"
-                ? "Payments are tracked against weekly billing cycles."
-                : "Payments are tracked against monthly billing cycles.";
-        }
-        toggleModal("payment-modal", true);
-      }
-      function savePayment() {
-        const sid = parseInt(document.getElementById("pay-student-id").value),
-          amount = parseFloat(document.getElementById("pay-amount").value),
-          date = document.getElementById("pay-date").value;
-        if (!amount || amount <= 0) {
-          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Enter a valid amount");
-          return;
-        }
-        if (!appData.payments) appData.payments = [];
-        appData.payments.push({
-          id: Date.now(),
-          studentId: sid,
-          amount,
-          date,
-          note: document.getElementById("pay-note").value.trim(),
-        });
-        const st = appData.students.find((s) => s.id === sid);
-        const rate = st?.rate || 0;
-        if ((st?.paymentCycle || "daily") === "daily" && rate > 0) {
-          let rem = amount;
-          appData.sessions
-            .filter((s) => s.studentId === sid && s.payment !== "paid")
-            .sort((a, b) => new Date(a.date) - new Date(b.date))
-            .forEach((s) => {
-              if (rem >= rate) {
-                s.payment = "paid";
-                rem -= rate;
-              }
-            });
-        }
-        save();
-        toggleModal("payment-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg> Payment recorded!");
-        renderAll();
-      }
-
-      // CONFIRM/DELETE
-      function confirmAction(type, id = null) {
-        const cfg = {
-          student: {
-            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-user\x27/></svg>",
-            title: "Delete Student?",
-            msg: "This will permanently delete this student and all their sessions and payments.",
-            btn: "Delete",
-            fn: () => deleteStudent(id),
-          },
-          session: {
-            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg>",
-            title: "Delete Session?",
-            msg: "This will remove this class record permanently.",
-            btn: "Delete",
-            fn: () => deleteSession(id),
-          },
-          payment: {
-            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-card\x27/></svg>",
-            title: "Delete Payment?",
-            msg: "Remove this payment record?",
-            btn: "Delete",
-            fn: () => deletePayment(id),
-          },
-          all: {
-            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg>",
-            title: "Wipe All Data?",
-            msg: "This is permanent. All students, sessions, and payments will be deleted.",
-            btn: "Clear All",
-            fn: clearAllData,
-          },
-        }[type];
-        if (!cfg) return;
-        document.getElementById("confirm-icon").innerHTML = cfg.icon;
-        document.getElementById("confirm-title").textContent = cfg.title;
-        document.getElementById("confirm-msg").textContent = cfg.msg;
-        const btn = document.getElementById("confirm-btn");
-        btn.textContent = cfg.btn;
-        btn.onclick = cfg.fn;
-        toggleModal("confirm-modal", true);
-      }
-      function deleteStudent(id) {
-        appData.sessions = appData.sessions.filter((s) => s.studentId !== id);
-        appData.payments = (appData.payments || []).filter(
-          (p) => p.studentId !== id,
-        );
-        appData.students = appData.students.filter((s) => s.id !== id);
-        activeStudentId = appData.students[0]?.id || null;
-        save();
-        toggleModal("confirm-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Student deleted");
-        renderAll();
-      }
-      function deleteSession(id) {
-        appData.sessions = appData.sessions.filter((s) => s.id !== id);
-        save();
-        toggleModal("confirm-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Session removed");
-        renderAll();
-      }
-      function deletePayment(id) {
-        appData.payments = (appData.payments || []).filter((p) => p.id !== id);
-        save();
-        toggleModal("confirm-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Payment removed");
-        renderAll();
-      }
-      function clearAllData() {
-        appData = { students: [], sessions: [], payments: [] };
-        activeStudentId = null;
-        save();
-        toggleModal("confirm-modal", false);
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> All data cleared");
-        renderAll();
-        switchView("dashboard");
-      }
-
-      // DASHBOARD
-      function renderDashboard() {
-        const now = new Date(),
-          h = now.getHours();
-        document.getElementById("dash-greeting").innerHTML =
-          h < 12
-            ? "Good morning <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sunrise\x27/></svg>"
-            : h < 17
-              ? "Good afternoon <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sun\x27/></svg>"
-              : "Good evening <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-moon\x27/></svg>";
-        document.getElementById("dash-date").textContent =
-          now.toLocaleDateString("en-GB", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-        const ms = appData.sessions.filter((s) => {
-          const d = new Date(s.date);
-          return (
-            d.getMonth() === now.getMonth() &&
-            d.getFullYear() === now.getFullYear()
-          );
-        });
-        document.getElementById("dash-month-classes").textContent = ms.length;
-        document.getElementById("dash-total-classes").textContent =
-          appData.sessions.length;
-        document.getElementById("dash-students").textContent =
-          appData.students.length;
-        let mi = 0;
-        ms.forEach((s) => {
-          const st = appData.students.find((x) => x.id === s.studentId);
-          if (st) mi += st.rate || 0;
-        });
-        document.getElementById("dash-month-income").textContent =
-          prefs.currency + mi.toLocaleString();
-        const qs = document.getElementById("quick-student");
-        qs.innerHTML = appData.students.length
-          ? appData.students
-              .map((s) => `<option value="${s.id}">${s.name}</option>`)
-              .join("")
-          : '<option value="">Add a student first</option>';
-        renderInsights();
-        renderMonthlyChart();
-        renderCalendar();
-        renderRecentSessions();
-      }
-      function renderInsights() {
-        const el = document.getElementById("insight-row"),
-          now = new Date(),
-          ins = [];
-        if (!appData.students.length) {
-          el.innerHTML = "";
-          return;
-        }
-        const ms = appData.sessions.filter((s) => {
-          const d = new Date(s.date);
-          return (
-            d.getMonth() === now.getMonth() &&
-            d.getFullYear() === now.getFullYear()
-          );
-        });
-        if (ms.length) {
-          const c = {};
-          ms.forEach((s) => (c[s.studentId] = (c[s.studentId] || 0) + 1));
-          const tid = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0];
-          const tn = appData.students.find((x) => x.id == tid)?.name;
-          if (tn)
-            ins.push(
-              `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-star\x27/></svg> Most active: <strong>${tn}</strong></div>`,
-            );
-        }
-        let owed = 0;
-        appData.students.forEach((s) => {
-          owed += getStudentPaymentSummary(s).owed;
-        });
-        if (owed > 0)
-          ins.push(
-            `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-hourglass\x27/></svg> Pending: <strong>${prefs.currency}${owed.toLocaleString()}</strong></div>`,
-          );
-        const ws = new Date(now);
-        ws.setDate(now.getDate() - now.getDay());
-        const wc = appData.sessions.filter(
-          (s) => new Date(s.date) >= ws,
-        ).length;
-        ins.push(
-          `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg> This week: <strong>${wc} class${wc !== 1 ? "es" : ""}</strong></div>`,
-        );
-        if (appData.students.length && ms.length)
-          ins.push(
-            `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-chart\x27/></svg> Avg/student: <strong>${(ms.length / appData.students.length).toFixed(1)}/mo</strong></div>`,
-          );
-        el.innerHTML = ins.join("");
-      }
-      function renderRecentSessions() {
-        const el = document.getElementById("recent-sessions");
-        const r = appData.sessions
-          .slice()
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 5);
-        if (!r.length) {
-          el.innerHTML =
-            '<p style="color:var(--text3);font-size:.85rem;text-align:center;padding:8px">No sessions yet.</p>';
-          return;
-        }
-        el.innerHTML = r
-          .map((s) => {
-            const st = appData.students.find((x) => x.id === s.studentId);
-            const cycle = st?.paymentCycle || "daily";
-            const badgeClass =
-              cycle === "daily"
-                ? s.payment === "paid"
-                  ? "badge-green"
-                  : "badge-yellow"
-                : "badge-gray";
-            const badgeText =
-              cycle === "daily"
-                ? s.payment === "paid"
-                  ? "Paid"
-                  : "Unpaid"
-                : `${cycle} billed`;
-            return `<div class="session-item"><div><div class="session-date">${st?.name || "Unknown"}</div><div class="session-meta">${s.date} · ${s.duration || 60}min${s.subject ? " · " + s.subject : ""}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div>`;
-          })
-          .join("");
-      }
-
-      // CHARTS
-      function renderMonthlyChart() {
-        const canvas = document.getElementById("monthly-chart");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d"),
-          now = new Date(),
-          labels = [],
-          counts = [];
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          labels.push(d.toLocaleDateString("en", { month: "short" }));
-          counts.push(
-            appData.sessions.filter((s) => {
-              const dd = new Date(s.date);
-              return (
-                dd.getMonth() === d.getMonth() &&
-                dd.getFullYear() === d.getFullYear()
-              );
-            }).length,
-          );
-        }
-        drawBarChart(ctx, canvas, labels, counts, "var(--primary)");
-      }
-      function renderStudentBarChart(sid) {
-        const canvas = document.getElementById("student-bar-chart");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d"),
-          now = new Date(),
-          labels = [],
-          counts = [];
-        for (let i = 7; i >= 0; i--) {
-          const ws = new Date(now);
-          ws.setDate(now.getDate() - i * 7 - now.getDay());
-          const we = new Date(ws);
-          we.setDate(ws.getDate() + 6);
-          labels.push("W" + (8 - i));
-          counts.push(
-            appData.sessions.filter(
-              (s) =>
-                s.studentId === sid &&
-                new Date(s.date) >= ws &&
-                new Date(s.date) <= we,
-            ).length,
-          );
-        }
-        const st = appData.students.find((x) => x.id === sid);
-        drawBarChart(
-          ctx,
-          canvas,
-          labels,
-          counts,
-          st?.color || "var(--primary)",
-        );
-      }
-      function drawBarChart(ctx, canvas, labels, data, color) {
-        const dpr = window.devicePixelRatio || 1,
-          W = canvas.offsetWidth,
-          H = canvas.offsetHeight;
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
-        ctx.scale(dpr, dpr);
-        const dk =
-          document.documentElement.getAttribute("data-theme") === "dark";
-        const tc = dk ? "#9b9db8" : "#4b4d6b",
-          gc = dk ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
-        ctx.clearRect(0, 0, W, H);
-        const p = { t: 10, r: 10, b: 24, l: 28 },
-          cW = W - p.l - p.r,
-          cH = H - p.t - p.b,
-          max = Math.max(...data, 1),
-          n = data.length,
-          bW = (cW / n) * 0.6,
-          gap = cW / n;
-        // canvas is hidden (0px) or too small to draw: nothing to render
-        if (cW <= 0 || cH <= 0 || n === 0) return;
-        for (let i = 0; i <= 4; i++) {
-          const y = p.t + cH * (1 - i / 4);
-          ctx.beginPath();
-          ctx.moveTo(p.l, y);
-          ctx.lineTo(p.l + cW, y);
-          ctx.strokeStyle = gc;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-          ctx.fillStyle = tc;
-          ctx.font = "10px DM Sans";
-          ctx.textAlign = "right";
-          ctx.fillText(Math.round((max * i) / 4), p.l - 4, y + 4);
-        }
-        data.forEach((v, i) => {
-          const x = p.l + i * gap + (gap - bW) / 2,
-            bh = cH * (v / max),
-            y = p.t + cH - bh;
-          const grad = ctx.createLinearGradient(0, y, 0, y + bh);
-          const c = color.startsWith("var")
-            ? getComputedStyle(document.documentElement)
-                .getPropertyValue("--primary")
-                .trim() || "#5b5ef4"
-            : color;
-          grad.addColorStop(0, c);
-          grad.addColorStop(1, c + "55");
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.roundRect(x, y, bW, bh, Math.min(5, bW / 2));
-          ctx.fill();
-          if (v > 0) {
-            ctx.fillStyle = tc;
-            ctx.font = "bold 10px DM Sans";
-            ctx.textAlign = "center";
-            ctx.fillText(v, x + bW / 2, y - 3);
-          }
-          ctx.fillStyle = tc;
-          ctx.font = "10px DM Sans";
-          ctx.textAlign = "center";
-          ctx.fillText(labels[i], x + bW / 2, H - p.b + 14);
-        });
-      }
-
-      // CALENDAR
-      function calNav(d) {
-        calViewDate.setMonth(calViewDate.getMonth() + d);
-        renderCalendar();
-      }
-      function renderCalendar() {
-        const y = calViewDate.getFullYear(),
-          m = calViewDate.getMonth();
-        document.getElementById("cal-label").textContent =
-          calViewDate.toLocaleDateString("en", {
-            month: "long",
-            year: "numeric",
-          });
-        document.getElementById("cal-day-names").innerHTML = [
-          "Su",
-          "Mo",
-          "Tu",
-          "We",
-          "Th",
-          "Fr",
-          "Sa",
-        ]
-          .map((d) => `<div class="cal-day-name">${d}</div>`)
-          .join("");
-        const first = new Date(y, m, 1).getDay(),
-          dim = new Date(y, m + 1, 0).getDate(),
-          today = new Date().toISOString().split("T")[0];
-        const sm = {};
-        appData.sessions.forEach((s) => {
-          sm[s.date] = (sm[s.date] || 0) + 1;
-        });
-        let html = "";
-        for (let i = 0; i < first; i++) {
-          const pd = new Date(y, m, 0 - first + i + 1);
-          html += `<div class="cal-day other-month">${pd.getDate()}</div>`;
-        }
-        for (let d = 1; d <= dim; d++) {
-          const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-            cnt = sm[ds] || 0;
-          const cls = [
-            "cal-day",
-            cnt > 0 ? "has-session" : "",
-            cnt >= 2 ? "session-count-2" : "",
-            cnt >= 3 ? "session-count-3" : "",
-            ds === today ? "today" : "",
-          ]
-            .filter(Boolean)
-            .join(" ");
-          html += `<div class="${cls}">${d}${cnt > 0 ? '<div style="width:4px;height:4px;border-radius:50%;background:var(--primary)"></div>' : ""}</div>`;
-        }
-        document.getElementById("mini-calendar").innerHTML = html;
-      }
-
-      // ANALYTICS
-      function switchAnalyticsTab(tab) {
-        analyticsTab = tab;
-        document
-          .querySelectorAll("#analytics-tabs .page-tab")
-          .forEach((el, i) =>
-            el.classList.toggle(
-              "active",
-              ["overview", "students", "income"][i] === tab,
-            ),
-          );
-        renderAnalytics();
-      }
-      function renderAnalytics() {
-        const el = document.getElementById("analytics-content");
-        if (analyticsTab === "overview")
-          el.innerHTML = renderOverviewAnalytics();
-        else if (analyticsTab === "students")
-          el.innerHTML = renderStudentAnalytics();
-        else el.innerHTML = renderIncomeAnalytics();
-      }
-      function renderOverviewAnalytics() {
-        const now = new Date(),
-          months = [];
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          months.push({
-            label: d.toLocaleDateString("en", {
-              month: "short",
-              year: "2-digit",
-            }),
-            count: appData.sessions.filter((s) => {
-              const dd = new Date(s.date);
-              return (
-                dd.getMonth() === d.getMonth() &&
-                dd.getFullYear() === d.getFullYear()
-              );
-            }).length,
-          });
-        }
-        const max = Math.max(...months.map((m) => m.count), 1);
-        const bars = months
-          .map(
-            (m) =>
-              `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:.75rem;font-weight:700;color:var(--text2)">${m.count || ""}</div><div style="width:100%;border-radius:6px 6px 0 0;background:var(--primary);opacity:${0.3 + 0.7 * (m.count / max)};min-height:4px;height:${Math.max(4, 100 * (m.count / max))}px"></div><div style="font-size:.68rem;color:var(--text3)">${m.label}</div></div>`,
-          )
-          .join("");
-        const sm = {};
-        appData.sessions.forEach((s) => {
-          if (s.subject) sm[s.subject] = (sm[s.subject] || 0) + 1;
-        });
-        const ts = Object.entries(sm)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
-        const wd = Array(7).fill(0);
-        appData.sessions.forEach((s) => {
-          wd[new Date(s.date).getDay()]++;
-        });
-        const mw = Math.max(...wd, 1);
-        return `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-chart\x27/></svg></span> Sessions by Month</div><div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 0">${bars}</div></div>
-    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg></span> Activity by Day of Week</div><div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0">${wd.map((v, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;border-radius:5px 5px 0 0;background:var(--accent);min-height:4px;height:${Math.max(4, 80 * (v / mw))}px"></div><div style="font-size:.68rem;color:var(--text3)">${["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][i]}</div></div>`).join("")}</div></div>
-    ${ts.length ? `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-book\x27/></svg></span> Top Subjects</div>${ts.map(([s, c], i) => `<div style="margin-bottom:10px"><div class="flex-between" style="margin-bottom:4px"><span style="font-size:.88rem;font-weight:500">${s}</span><span style="font-size:.8rem;color:var(--text3)">${c} sessions</span></div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (c / ts[0][1])}%;background:${COLORS[i % COLORS.length]}"></div></div></div>`).join("")}</div>` : ""}`;
-      }
-      function renderStudentAnalytics() {
-        if (!appData.students.length)
-          return '<div class="empty-state"><div class="empty-icon"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-users\x27/></svg></div><p>Add students first</p></div>';
-        const now = new Date(),
-          rows = appData.students
-            .map((s) => {
-              const ss = appData.sessions.filter((x) => x.studentId === s.id);
-              const ms = ss.filter((x) => {
-                const d = new Date(x.date);
-                return (
-                  d.getMonth() === now.getMonth() &&
-                  d.getFullYear() === now.getFullYear()
-                );
-              });
-              const pay = getStudentPaymentSummary(s);
-              return {
-                s,
-                total: ss.length,
-                month: ms.length,
-                target: Math.max(0, parseInt(s.monthlyRequiredClasses) || 0),
-                owed: pay.owed,
-                cycle: s.paymentCycle || "daily",
-              };
-            })
-            .sort((a, b) => b.total - a.total);
-        const mt = Math.max(...rows.map((r) => r.total), 1);
-        return `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-users\x27/></svg></span> Student Comparison</div>${rows.map((r) => `<div style="margin-bottom:14px"><div class="flex-between" style="margin-bottom:5px"><div class="flex-gap"><div class="color-dot" style="background:${r.s.color || "var(--primary)"}"></div><span style="font-weight:600">${r.s.name}</span>${r.s.grade ? '<span class="badge badge-gray">' + r.s.grade + "</span>" : ""}</div><div class="flex-gap"><span class="badge badge-blue">${r.month}/${r.target} classes</span><span class="badge badge-gray">${r.cycle}</span>${r.owed > 0 ? '<span class="badge badge-red">' + prefs.currency + r.owed.toLocaleString() + "</span>" : '<span class="badge badge-green">Paid</span>'}</div></div><div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">${r.total} total sessions</div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (r.total / mt)}%;background:${r.s.color || "var(--primary)"}"></div></div></div>`).join("")}</div>`;
-      }
-      function renderIncomeAnalytics() {
-        const now = new Date();
-        let te = 0,
-          to = 0;
-        appData.students.forEach((s) => {
-          const pay = getStudentPaymentSummary(s);
-          te += pay.totalBilled;
-          to += pay.owed;
-        });
-        const mr = [];
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          let inc = 0;
-          appData.sessions
-            .filter((s) => {
-              const dd = new Date(s.date);
-              return (
-                dd.getMonth() === d.getMonth() &&
-                dd.getFullYear() === d.getFullYear()
-              );
-            })
-            .forEach((s) => {
-              const st = appData.students.find((x) => x.id === s.studentId);
-              if (st) inc += st.rate || 0;
-            });
-          mr.push({
-            label: d.toLocaleDateString("en", { month: "short" }),
-            income: inc,
-          });
-        }
-        const mi = Math.max(...mr.map((m) => m.income), 1);
-        return `<div class="stats-grid"><div class="stat-card green"><div class="stat-value small">${prefs.currency}${te.toLocaleString()}</div><div class="stat-label">Total Earned</div></div><div class="stat-card red"><div class="stat-value small">${prefs.currency}${to.toLocaleString()}</div><div class="stat-label">Still Owed</div></div></div>
-    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg></span> Monthly Income</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding:8px 0">${mr.map((m) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:.7rem;font-weight:700;color:var(--success)">${m.income > 0 ? prefs.currency + m.income : ""}</div><div style="width:100%;border-radius:6px 6px 0 0;background:var(--success);min-height:4px;opacity:.85;height:${Math.max(4, 100 * (m.income / mi))}px"></div><div style="font-size:.68rem;color:var(--text3)">${m.label}</div></div>`).join("")}</div></div>
-    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-user\x27/></svg></span> Income by Student</div>${
-      appData.students
-        .map((s) => {
-          const e =
-            appData.sessions.filter((x) => x.studentId === s.id).length *
-            (s.rate || 0);
-          return e > 0
-            ? `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)"><div class="flex-gap"><div class="color-dot" style="background:${s.color || "var(--primary)"}"></div><span style="font-weight:500">${s.name}</span></div><div class="flex-gap"><span style="font-weight:700;color:var(--success)">${prefs.currency}${e.toLocaleString()}</span><span class="badge badge-gray">${prefs.currency}${s.rate || 0}/class</span></div></div>`
-            : "";
-        })
-        .join("") ||
-      '<p style="color:var(--text3);font-size:.85rem">Set rates on students to track income.</p>'
-    }</div>
-    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-list\x27/></svg></span> Payment History</div>${
-      (appData.payments || []).length
-        ? (appData.payments || [])
-            .slice()
-            .reverse()
-            .map((p) => {
-              const st = appData.students.find((x) => x.id === p.studentId);
-              return `<div class="payment-item"><div><div style="font-weight:600">${st?.name || ""} — ${prefs.currency}${p.amount.toLocaleString()}</div><div style="font-size:.78rem;color:var(--text3)">${p.date}${p.note ? " · " + p.note : ""}</div></div><span class="badge badge-green">Received</span></div>`;
-            })
-            .join("")
-        : '<p style="color:var(--text3);font-size:.85rem">No payments recorded yet.</p>'
-    }</div>`;
-      }
-
-      // UTILITIES
-      function renderAll() {
-        if (window.appData) appData = window.appData;
-        if (window.prefs) prefs = window.prefs;
-        normalizeStudentSettings(false);
-        renderDashboard();
-        if (currentView === "students") {
-          renderStudentTabs();
-          if (activeStudentId) renderStudentDetail();
-        }
-        if (currentView === "analytics") renderAnalytics();
-      }
-      function toggleModal(id, show) {
-        document.getElementById(id).classList.toggle("hidden", !show);
-      }
-      function showToast(msg) {
-        const w = document.getElementById("toast-wrap"),
-          el = document.createElement("div");
-        el.className = "toast";
-        el.innerHTML = msg;
-        w.appendChild(el);
-        setTimeout(() => el.remove(), 2500);
-      }
-      function exportData() {
-        const d = {
-          exportDate: new Date().toISOString(),
-          version: "3.0",
-          ...appData,
-        };
-        const a = document.createElement("a");
-        a.href =
-          "data:text/json;charset=utf-8," +
-          encodeURIComponent(JSON.stringify(d, null, 2));
-        a.download = `tuition_backup_${new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}.json`;
-        a.click();
-        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-download\x27/></svg> Data exported!");
-      }
-      function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const r = new FileReader();
-        r.onload = (e) => {
-          try {
-            const imp = JSON.parse(e.target.result);
-            if (!imp.students) {
-              showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-x\x27/></svg> Invalid backup file");
-              return;
-            }
-            appData = {
-              students: imp.students || [],
-              sessions: imp.sessions || [],
-              payments: imp.payments || [],
-            };
-            window.appData = appData;
-            save();
-            renderAll();
-            showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Data imported!");
-          } catch {
-            showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-x\x27/></svg> Failed to parse file");
-          }
-        };
-        r.readAsText(file);
-      }
-    </script>
+    <input type="file" id="import-file" accept="application/json,.json" hidden />
+    <div class="toasts" id="toasts" aria-live="polite"></div>
   </body>
 </html>
