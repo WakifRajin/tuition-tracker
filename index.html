@@ -1142,16 +1142,68 @@
         font-weight: 800;
         color: var(--accent);
       }
+      .ico {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.125em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+      }
       .mt8 {
         margin-top: 8px;
       }
     </style>
   </head>
   <body>
+    <!-- ICON SPRITE -->
+    <svg width='0' height='0' style='position:absolute' aria-hidden='true'>
+      <symbol id='i-book' viewBox='0 0 24 24'><path d='M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4z'/><path d='M20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z'/></symbol>
+      <symbol id='i-cloud' viewBox='0 0 24 24'><path d='M7 18a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.8 8 4.5 4.5 0 0 1 17 18z'/></symbol>
+      <symbol id='i-search' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7'/><path d='m20 20-4-4'/></symbol>
+      <symbol id='i-moon' viewBox='0 0 24 24'><path d='M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z'/></symbol>
+      <symbol id='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></symbol>
+      <symbol id='i-refresh' viewBox='0 0 24 24'><path d='M21 12a9 9 0 1 1-3-6.7L21 8'/><path d='M21 3v5h-5'/></symbol>
+      <symbol id='i-logout' viewBox='0 0 24 24'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><path d='m16 17 5-5-5-5M21 12H9'/></symbol>
+      <symbol id='i-bulb' viewBox='0 0 24 24'><path d='M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z'/></symbol>
+      <symbol id='i-zap' viewBox='0 0 24 24'><path d='M13 2 3 14h9l-1 8 10-12h-9z'/></symbol>
+      <symbol id='i-check' viewBox='0 0 24 24'><path d='M20 6 9 17l-5-5'/></symbol>
+      <symbol id='i-chart' viewBox='0 0 24 24'><path d='M3 3v18h18'/><path d='M7 15l4-4 3 3 5-6'/></symbol>
+      <symbol id='i-calendar' viewBox='0 0 24 24'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></symbol>
+      <symbol id='i-clock' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></symbol>
+      <symbol id='i-users' viewBox='0 0 24 24'><circle cx='9' cy='7' r='4'/><path d='M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2'/><path d='M16 3a4 4 0 0 1 0 8M21 21v-2a4 4 0 0 0-3-3.9'/></symbol>
+      <symbol id='i-settings' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/><path d='M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1'/><circle cx='12' cy='12' r='7'/></symbol>
+      <symbol id='i-download' viewBox='0 0 24 24'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3'/></symbol>
+      <symbol id='i-upload' viewBox='0 0 24 24'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12'/></symbol>
+      <symbol id='i-trash' viewBox='0 0 24 24'><path d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6'/></symbol>
+      <symbol id='i-info' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 16v-4M12 8h.01'/></symbol>
+      <symbol id='i-heart' viewBox='0 0 24 24'><path d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z'/></symbol>
+      <symbol id='i-home' viewBox='0 0 24 24'><path d='M3 10.5 12 3l9 7.5V21H3z'/></symbol>
+      <symbol id='i-plus' viewBox='0 0 24 24'><path d='M12 5v14M5 12h14'/></symbol>
+      <symbol id='i-trend' viewBox='0 0 24 24'><path d='M22 7 13.5 15.5l-5-5L2 17'/></symbol>
+      <symbol id='i-card' viewBox='0 0 24 24'><rect x='2' y='5' width='20' height='14' rx='2'/><path d='M2 10h20'/></symbol>
+      <symbol id='i-list' viewBox='0 0 24 24'><path d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/></symbol>
+      <symbol id='i-alert' viewBox='0 0 24 24'><path d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'/><path d='M12 9v4M12 17h.01'/></symbol>
+      <symbol id='i-flame' viewBox='0 0 24 24'><path d='M12 22a7 7 0 0 0 7-7c0-4-3-6-4-10-2 2-2 4-3 5-1-2-1-4-2-6C7 8 5 11 5 15a7 7 0 0 0 7 7z'/></symbol>
+      <symbol id='i-sunrise' viewBox='0 0 24 24'><path d='M17 18a5 5 0 0 0-10 0M12 9V5M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 6l-4-4-4 4'/></symbol>
+      <symbol id='i-star' viewBox='0 0 24 24'><path d='m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z'/></symbol>
+      <symbol id='i-user' viewBox='0 0 24 24'><circle cx='12' cy='8' r='4'/><path d='M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1'/></symbol>
+      <symbol id='i-edit' viewBox='0 0 24 24'><path d='M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/></symbol>
+      <symbol id='i-note' viewBox='0 0 24 24'><path d='M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z'/><path d='M14 3v6h6M8 13h8M8 17h5'/></symbol>
+      <symbol id='i-phone' viewBox='0 0 24 24'><path d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z'/></symbol>
+      <symbol id='i-mail' viewBox='0 0 24 24'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 6-10 7L2 6'/></symbol>
+      <symbol id='i-smile' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01'/></symbol>
+      <symbol id='i-wallet' viewBox='0 0 24 24'><rect x='2' y='6' width='20' height='14' rx='2'/><path d='M16 13h2M2 10h20'/></symbol>
+      <symbol id='i-hourglass' viewBox='0 0 24 24'><path d='M5 2h14M5 22h14M7 2v4a5 5 0 0 0 10 0V2M7 22v-4a5 5 0 0 1 10 0v4'/></symbol>
+      <symbol id='i-x' viewBox='0 0 24 24'><path d='M18 6 6 18M6 6l12 12'/></symbol>
+    </svg>
     <!-- AUTH SCREEN -->
     <div id="auth-screen">
       <div class="auth-card">
-        <div class="auth-logo">📚 TuitionPro</div>
+        <div class="auth-logo">TuitionPro</div>
         <div class="auth-subtitle">
           Sign in to sync data across all your devices
         </div>
@@ -1251,13 +1303,13 @@
 
     <!-- HEADER -->
     <div class="header hidden" id="main-header">
-      <div class="header-title">📚 TuitionPro</div>
+      <div class="header-title">TuitionPro</div>
       <div class="header-actions">
         <div class="icon-btn" id="sync-btn" onclick="manualSync()" title="Sync">
-          ☁️
+          <svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg>
         </div>
-        <div class="icon-btn" onclick="toggleSearch()" title="Search">🔍</div>
-        <div class="icon-btn" onclick="toggleDark()" id="theme-btn">🌙</div>
+        <div class="icon-btn" onclick="toggleSearch()" title="Search"><svg class='ico' aria-hidden='true'><use href='#i-search'/></svg></div>
+        <div class="icon-btn" onclick="toggleDark()" id="theme-btn"><svg class='ico' aria-hidden='true'><use href='#i-moon'/></svg></div>
         <div class="avatar-btn" id="avatar-btn" onclick="toggleAccountPanel()">
           ?
         </div>
@@ -1286,10 +1338,10 @@
         onclick="manualSync()"
         style="margin-bottom: 8px"
       >
-        🔄 Sync Now
+        <svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync Now
       </button>
       <button class="btn btn-danger btn-sm" onclick="signOutUser()">
-        🚪 Sign Out
+        <svg class='ico' aria-hidden='true'><use href='#i-logout'/></svg> Sign Out
       </button>
     </div>
 
@@ -1299,7 +1351,7 @@
       <div id="view-dashboard">
         <div id="search-bar-wrap" class="hidden">
           <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon"><svg class='ico' aria-hidden='true'><use href='#i-search'/></svg></span>
             <input
               type="text"
               id="global-search"
@@ -1355,10 +1407,10 @@
             <div class="stat-label">Students</div>
           </div>
         </div>
-        <div class="section-label">💡 Insights</div>
+        <div class="section-label"><svg class='ico' aria-hidden='true'><use href='#i-bulb'/></svg> Insights</div>
         <div class="insight-row" id="insight-row"></div>
         <div class="card" style="margin-top: 14px">
-          <div class="card-title"><span>⚡</span> Quick Log</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-zap'/></svg></span> Quick Log</div>
           <div class="form-group">
             <label class="form-label">Student</label
             ><select id="quick-student"></select>
@@ -1396,16 +1448,16 @@
             ></textarea>
           </div>
           <button class="btn btn-primary" onclick="logSession()">
-            ✅ Log Class
+            <svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Log Class
           </button>
         </div>
         <div class="card">
-          <div class="card-title"><span>📊</span> Monthly Activity</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-chart'/></svg></span> Monthly Activity</div>
           <canvas id="monthly-chart" height="180"></canvas>
         </div>
         <div class="card">
           <div class="card-title flex-between">
-            <span><span>📅</span> Class Calendar</span>
+            <span><span><svg class='ico' aria-hidden='true'><use href='#i-calendar'/></svg></span> Class Calendar</span>
             <div class="flex-gap">
               <div
                 class="icon-btn"
@@ -1436,7 +1488,7 @@
           <div class="mini-cal" id="mini-calendar"></div>
         </div>
         <div class="card">
-          <div class="card-title"><span>🕐</span> Recent Sessions</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-clock'/></svg></span> Recent Sessions</div>
           <div id="recent-sessions"></div>
         </div>
       </div>
@@ -1445,7 +1497,7 @@
       <div id="view-students" class="hidden">
         <div class="student-tabs" id="tab-list"></div>
         <div id="empty-state-students" class="empty-state hidden">
-          <div class="empty-icon">👥</div>
+          <div class="empty-icon"><svg class='ico' aria-hidden='true'><use href='#i-users'/></svg></div>
           <p>No students yet.</p>
           <button
             class="btn btn-primary"
@@ -1477,7 +1529,7 @@
       <!-- SETTINGS -->
       <div id="view-settings" class="hidden">
         <div class="card">
-          <div class="card-title"><span>⚙️</span> Preferences</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-settings'/></svg></span> Preferences</div>
           <div class="toggle-row">
             <div>
               <div class="toggle-label">Dark Mode</div>
@@ -1515,7 +1567,7 @@
           </div>
         </div>
         <div class="card">
-          <div class="card-title"><span>☁️</span> Account & Sync</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg></span> Account & Sync</div>
           <div
             id="settings-sync-info"
             style="
@@ -1526,14 +1578,14 @@
             "
           ></div>
           <button class="btn btn-outline" onclick="manualSync()">
-            🔄 Sync Now
+            <svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync Now
           </button>
           <button class="btn btn-outline mt8" onclick="exportData()">
-            📥 Export Backup (JSON)
+            <svg class='ico' aria-hidden='true'><use href='#i-download'/></svg> Export Backup (JSON)
           </button>
           <div style="margin: 8px 0">
             <label class="btn btn-outline" style="cursor: pointer"
-              >📤 Import Backup<input
+              ><svg class='ico' aria-hidden='true'><use href='#i-upload'/></svg> Import Backup<input
                 type="file"
                 accept=".json"
                 onchange="importData(event)"
@@ -1541,14 +1593,14 @@
             /></label>
           </div>
           <button class="btn btn-danger" onclick="confirmAction('all')">
-            🗑️ Clear All Data
+            <svg class='ico' aria-hidden='true'><use href='#i-trash'/></svg> Clear All Data
           </button>
         </div>
         <div class="card">
-          <div class="card-title"><span>ℹ️</span> App Info</div>
+          <div class="card-title"><span><svg class='ico' aria-hidden='true'><use href='#i-info'/></svg></span> App Info</div>
           <p style="font-size: 0.85rem; color: var(--text2); line-height: 1.6">
             <strong>Tuition Tracker Pro</strong> v3.0<br />For teachers &
-            tutors.<br />Made with ❤️ by
+            tutors.<br />Made with <svg class='ico' aria-hidden='true'><use href='#i-heart'/></svg> by
             <a
               class="credit-link"
               href="https://github.com/WakifRajin"
@@ -1568,26 +1620,26 @@
         id="nav-dashboard"
         onclick="switchView('dashboard')"
       >
-        <div class="nav-icon">🏠</div>
+        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-home'/></svg></div>
         <span class="nav-label">Home</span>
       </div>
       <div class="nav-item" id="nav-students" onclick="switchView('students')">
-        <div class="nav-icon">👥</div>
+        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-users'/></svg></div>
         <span class="nav-label">Students</span>
       </div>
       <div class="nav-item add-btn" onclick="openAddStudent()">
-        <div class="nav-icon-wrap">➕</div>
+        <div class="nav-icon-wrap"><svg class='ico' aria-hidden='true'><use href='#i-plus'/></svg></div>
       </div>
       <div
         class="nav-item"
         id="nav-analytics"
         onclick="switchView('analytics')"
       >
-        <div class="nav-icon">📊</div>
+        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-chart'/></svg></div>
         <span class="nav-label">Analytics</span>
       </div>
       <div class="nav-item" id="nav-settings" onclick="switchView('settings')">
-        <div class="nav-icon">⚙️</div>
+        <div class="nav-icon"><svg class='ico' aria-hidden='true'><use href='#i-settings'/></svg></div>
         <span class="nav-label">Settings</span>
       </div>
     </div>
@@ -1720,8 +1772,8 @@
         <div class="form-group" id="log-payment-group">
           <label class="form-label">Payment Status</label>
           <select id="log-payment">
-            <option value="unpaid">⏳ Unpaid</option>
-            <option value="paid">✅ Paid</option>
+            <option value="unpaid"><svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Unpaid</option>
+            <option value="paid"><svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Paid</option>
           </select>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 10px">
@@ -1737,7 +1789,7 @@
             onclick="saveSession()"
             style="flex: 2"
           >
-            ✅ Log This Class
+            <svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Log This Class
           </button>
         </div>
       </div>
@@ -1775,7 +1827,7 @@
             onclick="savePayment()"
             style="flex: 2"
           >
-            💰 Save Payment
+            <svg class='ico' aria-hidden='true'><use href='#i-wallet'/></svg> Save Payment
           </button>
         </div>
       </div>
@@ -1807,8 +1859,8 @@
         <div class="form-group" id="edit-payment-group">
           <label class="form-label">Payment Status</label>
           <select id="edit-payment">
-            <option value="unpaid">⏳ Unpaid</option>
-            <option value="paid">✅ Paid</option>
+            <option value="unpaid"><svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Unpaid</option>
+            <option value="paid"><svg class='ico' aria-hidden='true'><use href='#i-check'/></svg> Paid</option>
           </select>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 10px">
@@ -1832,7 +1884,7 @@
 
     <div id="confirm-modal" class="overlay center hidden">
       <div class="sheet center" style="max-width: 380px; padding: 28px">
-        <div class="confirm-icon" id="confirm-icon">⚠️</div>
+        <div class="confirm-icon" id="confirm-icon"><svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg></div>
         <div
           style="
             font-family: &quot;Syne&quot;, sans-serif;
@@ -1972,7 +2024,7 @@
             }
           }
           setSyncStatus("online");
-          showToast("☁️ Data synced");
+          showToast("<svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg> Data synced");
         } catch (e) {
           console.warn("Load error:", e);
           setSyncStatus("offline");
@@ -2024,11 +2076,11 @@
 
       window.manualSync = async () => {
         if (!window.__user) {
-          showToast("⚠️ Not signed in");
+          showToast("<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg> Not signed in");
           return;
         }
         await loadCloud(window.__user.uid);
-        showToast("🔄 Sync complete");
+        showToast("<svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg> Sync complete");
       };
 
       // Auth UI helpers (called from non-module script)
@@ -2049,7 +2101,7 @@
           return;
         }
         const btn = document.getElementById("auth-submit-btn");
-        btn.textContent = "⏳ Please wait…";
+        btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-hourglass'/></svg> Please wait…";
         btn.disabled = true;
         try {
           if (isSignup) {
@@ -2108,7 +2160,7 @@
         }
         try {
           await window.__fbResetPassword(email);
-          showToast("📩 Password reset email sent. Check your inbox.");
+          showToast("<svg class='ico' aria-hidden='true'><use href='#i-mail'/></svg> Password reset email sent. Check your inbox.");
           document.getElementById("auth-error").style.display = "none";
         } catch (e) {
           const msgs = {
@@ -2141,7 +2193,7 @@
         window.appData = { students: [], sessions: [], payments: [] };
         hideApp();
         showAuthScreen();
-        showToast("👋 Signed out");
+        showToast("<svg class='ico' aria-hidden='true'><use href='#i-smile'/></svg> Signed out");
       };
 
       function showApp(user) {
@@ -2183,7 +2235,7 @@
           bar.className = "syncing";
           dot && (dot.className = "sync-dot syncing");
           txt && (txt.textContent = "Syncing…");
-          btn && (btn.textContent = "🔄");
+          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-refresh'/></svg>");
         } else if (s === "online") {
           bar.className = "done";
           setTimeout(() => {
@@ -2191,18 +2243,19 @@
           }, 900);
           dot && (dot.className = "sync-dot");
           txt && (txt.textContent = "Synced ✓");
-          btn && (btn.textContent = "☁️");
+          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-cloud'/></svg>");
         } else {
           bar.className = "";
           dot && (dot.className = "sync-dot offline");
           txt && (txt.textContent = "Offline");
-          btn && (btn.textContent = "⚠️");
+          btn && (btn.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg>");
         }
       }
 
       function showAuthErr(msg) {
         const el = document.getElementById("auth-error");
-        el.textContent = "⚠️ " + msg;
+        el.innerHTML = "<svg class='ico' aria-hidden='true'><use href='#i-alert'/></svg> ";
+        el.append(msg);
         el.style.display = "block";
       }
 
@@ -2296,12 +2349,12 @@
           document.documentElement.setAttribute("data-theme", "dark");
           document.getElementById("dark-toggle")?.classList.add("on");
           const t = document.getElementById("theme-btn");
-          if (t) t.textContent = "☀️";
+          if (t) t.innerHTML = "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sun\x27/></svg>";
         } else {
           document.documentElement.removeAttribute("data-theme");
           document.getElementById("dark-toggle")?.classList.remove("on");
           const t = document.getElementById("theme-btn");
-          if (t) t.textContent = "🌙";
+          if (t) t.innerHTML = "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-moon\x27/></svg>";
         }
         document
           .querySelectorAll(".currency-label")
@@ -2618,7 +2671,7 @@
       function saveStudent() {
         const name = document.getElementById("s-name").value.trim();
         if (!name) {
-          showToast("⚠️ Name is required");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Name is required");
           return;
         }
         const rate = parseFloat(document.getElementById("s-rate").value) || 0;
@@ -2648,12 +2701,12 @@
             (s) => s.id === editingStudentId,
           );
           appData.students[i] = { ...appData.students[i], ...sd };
-          showToast("✅ Student updated");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Student updated");
         } else {
           const ns = { id: Date.now(), ...sd };
           appData.students.push(ns);
           activeStudentId = ns.id;
-          showToast("✅ Student added");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Student added");
         }
         save();
         toggleModal("student-modal", false);
@@ -2720,12 +2773,12 @@
     <div class="card" style="border-left:4px solid ${s.color || "var(--primary)"}">
       <div class="flex-between">
         <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">${s.name}</div>
-          <div style="font-size:.82rem;color:var(--text3);margin-top:3px">${s.grade ? '<span class="badge badge-gray">' + s.grade + "</span> " : ""} ${s.phone ? "📞 " + s.phone : ""} <span class="badge badge-blue" style="margin-left:6px">${pay.monthlyClasses}/${pay.monthlyRequiredClasses} classes this month</span></div>
+          <div style="font-size:.82rem;color:var(--text3);margin-top:3px">${s.grade ? '<span class="badge badge-gray">' + s.grade + "</span> " : ""} ${s.phone ? "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-phone\x27/></svg> " + s.phone : ""} <span class="badge badge-blue" style="margin-left:6px">${pay.monthlyClasses}/${pay.monthlyRequiredClasses} classes this month</span></div>
         </div>
-        <div class="flex-gap"><div class="icon-btn" onclick="openEditStudent(${s.id})">✏️</div><div class="icon-btn" onclick="confirmAction('student',${s.id})" style="color:var(--danger)">🗑️</div></div>
+        <div class="flex-gap"><div class="icon-btn" onclick="openEditStudent(${s.id})"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-edit\x27/></svg></div><div class="icon-btn" onclick="confirmAction('student',${s.id})" style="color:var(--danger)"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg></div></div>
       </div>
       ${s.subjects?.length ? '<div style="margin-top:10px">' + s.subjects.map((x) => '<span class="subject-pill">' + x + "</span>").join("") + "</div>" : ""}
-      ${s.notes ? '<div style="margin-top:10px;font-size:.82rem;color:var(--text2);padding:8px;background:var(--surface2);border-radius:8px">📝 ' + s.notes + "</div>" : ""}
+      ${s.notes ? '<div style="margin-top:10px;font-size:.82rem;color:var(--text2);padding:8px;background:var(--surface2);border-radius:8px"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-note\x27/></svg> ' + s.notes + "</div>" : ""}
     </div>
     <div class="stats-grid stats-grid-4">
       <div class="stat-card blue"><div class="stat-value">${ms.length}</div><div class="stat-label">This Month</div></div>
@@ -2733,14 +2786,14 @@
       <div class="stat-card green"><div class="stat-value small">${prefs.currency}${earned.toLocaleString()}</div><div class="stat-label">Billed</div></div>
       <div class="stat-card red"><div class="stat-value small">${prefs.currency}${owed.toLocaleString()}</div><div class="stat-label">Owed</div></div>
     </div>
-    ${streak > 0 ? '<div class="streak-display" style="margin-bottom:14px"><div><div class="streak-num">' + streak + '</div></div><div><div style="font-weight:700">Streak 🔥</div><div style="font-size:.78rem;color:var(--text3)">Consecutive days</div></div></div>' : ""}
+    ${streak > 0 ? '<div class="streak-display" style="margin-bottom:14px"><div><div class="streak-num">' + streak + '</div></div><div><div style="font-weight:700">Streak <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-flame\x27/></svg></div><div style="font-size:.78rem;color:var(--text3)">Consecutive days</div></div></div>' : ""}
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <button class="btn btn-primary" onclick="openLogModal(${s.id})" style="flex:2">+ Log Class</button>
-      <button class="btn btn-success" onclick="openPaymentModal(${s.id})" style="flex:1">💰 Pay</button>
+      <button class="btn btn-success" onclick="openPaymentModal(${s.id})" style="flex:1"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg> Pay</button>
     </div>
-    <div class="card" id="student-bar-chart-wrap"><div class="card-title"><span>📈</span> Last 8 Weeks</div><canvas id="student-bar-chart" height="140"></canvas></div>
+    <div class="card" id="student-bar-chart-wrap"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trend\x27/></svg></span> Last 8 Weeks</div><canvas id="student-bar-chart" height="140"></canvas></div>
     <div class="card">
-      <div class="card-title flex-between"><span><span>💳</span> Payments</span><span class="badge badge-gray">${pay.cycle.charAt(0).toUpperCase() + pay.cycle.slice(1)} billing</span><span class="badge ${owed > 0 ? "badge-red" : "badge-green"}">${owed > 0 ? "Owes " + prefs.currency + owed.toLocaleString() : "All Paid"}</span></div>
+      <div class="card-title flex-between"><span><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-card\x27/></svg></span> Payments</span><span class="badge badge-gray">${pay.cycle.charAt(0).toUpperCase() + pay.cycle.slice(1)} billing</span><span class="badge ${owed > 0 ? "badge-red" : "badge-green"}">${owed > 0 ? "Owes " + prefs.currency + owed.toLocaleString() : "All Paid"}</span></div>
       ${
         payments.length
           ? payments
@@ -2755,8 +2808,8 @@
       }
     </div>
     <div class="card">
-      <div class="card-title"><span>📋</span> Session History (${sessions.length})</div>
-      ${sessions.length ? sessions.map((sess) => `<div class="session-item"><div style="flex:1;min-width:0"><div class="session-date">📅 ${sess.date}</div><div class="session-meta">${sess.duration || 60} min${sess.subject ? " · " + sess.subject : ""}</div>${sess.notes ? '<div style="font-size:.78rem;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📝 ' + sess.notes + "</div>" : ""}</div><div class="flex-gap" style="flex-shrink:0"><span class="badge ${pay.cycle === "daily" ? (sess.payment === "paid" ? "badge-green" : "badge-yellow") : "badge-gray"}">${pay.cycle === "daily" ? (sess.payment === "paid" ? "Paid" : "Unpaid") : pay.cycle + " billed"}</span><div class="icon-btn" onclick="openEditSession(${sess.id})" style="width:30px;height:30px;font-size:.8rem">✏️</div><div class="icon-btn" onclick="confirmAction('session',${sess.id})" style="width:30px;height:30px;font-size:.8rem;color:var(--danger)">🗑️</div></div></div>`).join("") : '<p style="color:var(--text3);font-size:.85rem;text-align:center">No sessions yet.</p>'}
+      <div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-list\x27/></svg></span> Session History (${sessions.length})</div>
+      ${sessions.length ? sessions.map((sess) => `<div class="session-item"><div style="flex:1;min-width:0"><div class="session-date"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg> ${sess.date}</div><div class="session-meta">${sess.duration || 60} min${sess.subject ? " · " + sess.subject : ""}</div>${sess.notes ? '<div style="font-size:.78rem;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-note\x27/></svg> ' + sess.notes + "</div>" : ""}</div><div class="flex-gap" style="flex-shrink:0"><span class="badge ${pay.cycle === "daily" ? (sess.payment === "paid" ? "badge-green" : "badge-yellow") : "badge-gray"}">${pay.cycle === "daily" ? (sess.payment === "paid" ? "Paid" : "Unpaid") : pay.cycle + " billed"}</span><div class="icon-btn" onclick="openEditSession(${sess.id})" style="width:30px;height:30px;font-size:.8rem"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-edit\x27/></svg></div><div class="icon-btn" onclick="confirmAction('session',${sess.id})" style="width:30px;height:30px;font-size:.8rem;color:var(--danger)"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg></div></div></div>`).join("") : '<p style="color:var(--text3);font-size:.85rem;text-align:center">No sessions yet.</p>'}
     </div>`;
         setTimeout(() => renderStudentBarChart(s.id), 50);
       }
@@ -2780,7 +2833,7 @@
         const sid = parseInt(document.getElementById("log-student-id").value),
           date = document.getElementById("log-date").value;
         if (!date) {
-          showToast("⚠️ Select a date");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Select a date");
           return;
         }
         appData.sessions.push({
@@ -2795,14 +2848,14 @@
         });
         save();
         toggleModal("log-modal", false);
-        showToast("✅ Session logged!");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session logged!");
         renderAll();
       }
       function logSession() {
         const sid = parseInt(document.getElementById("quick-student").value),
           date = document.getElementById("quick-date").value;
         if (!sid || !date) {
-          showToast("⚠️ Select student & date");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Select student & date");
           return;
         }
         appData.sessions.push({
@@ -2816,7 +2869,7 @@
           payment: "unpaid",
         });
         save();
-        showToast("✅ Session logged!");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session logged!");
         document.getElementById("quick-subject").value = "";
         document.getElementById("quick-notes").value = "";
         renderAll();
@@ -2852,7 +2905,7 @@
         };
         save();
         toggleModal("edit-session-modal", false);
-        showToast("✅ Session updated");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Session updated");
         renderAll();
       }
 
@@ -2890,7 +2943,7 @@
           amount = parseFloat(document.getElementById("pay-amount").value),
           date = document.getElementById("pay-date").value;
         if (!amount || amount <= 0) {
-          showToast("⚠️ Enter a valid amount");
+          showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-alert\x27/></svg> Enter a valid amount");
           return;
         }
         if (!appData.payments) appData.payments = [];
@@ -2917,7 +2970,7 @@
         }
         save();
         toggleModal("payment-modal", false);
-        showToast("💰 Payment recorded!");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg> Payment recorded!");
         renderAll();
       }
 
@@ -2925,28 +2978,28 @@
       function confirmAction(type, id = null) {
         const cfg = {
           student: {
-            icon: "👤",
+            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-user\x27/></svg>",
             title: "Delete Student?",
             msg: "This will permanently delete this student and all their sessions and payments.",
             btn: "Delete",
             fn: () => deleteStudent(id),
           },
           session: {
-            icon: "📅",
+            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg>",
             title: "Delete Session?",
             msg: "This will remove this class record permanently.",
             btn: "Delete",
             fn: () => deleteSession(id),
           },
           payment: {
-            icon: "💳",
+            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-card\x27/></svg>",
             title: "Delete Payment?",
             msg: "Remove this payment record?",
             btn: "Delete",
             fn: () => deletePayment(id),
           },
           all: {
-            icon: "🗑️",
+            icon: "<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg>",
             title: "Wipe All Data?",
             msg: "This is permanent. All students, sessions, and payments will be deleted.",
             btn: "Clear All",
@@ -2954,7 +3007,7 @@
           },
         }[type];
         if (!cfg) return;
-        document.getElementById("confirm-icon").textContent = cfg.icon;
+        document.getElementById("confirm-icon").innerHTML = cfg.icon;
         document.getElementById("confirm-title").textContent = cfg.title;
         document.getElementById("confirm-msg").textContent = cfg.msg;
         const btn = document.getElementById("confirm-btn");
@@ -2971,21 +3024,21 @@
         activeStudentId = appData.students[0]?.id || null;
         save();
         toggleModal("confirm-modal", false);
-        showToast("🗑️ Student deleted");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Student deleted");
         renderAll();
       }
       function deleteSession(id) {
         appData.sessions = appData.sessions.filter((s) => s.id !== id);
         save();
         toggleModal("confirm-modal", false);
-        showToast("🗑️ Session removed");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Session removed");
         renderAll();
       }
       function deletePayment(id) {
         appData.payments = (appData.payments || []).filter((p) => p.id !== id);
         save();
         toggleModal("confirm-modal", false);
-        showToast("🗑️ Payment removed");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> Payment removed");
         renderAll();
       }
       function clearAllData() {
@@ -2993,7 +3046,7 @@
         activeStudentId = null;
         save();
         toggleModal("confirm-modal", false);
-        showToast("🗑️ All data cleared");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-trash\x27/></svg> All data cleared");
         renderAll();
         switchView("dashboard");
       }
@@ -3002,12 +3055,12 @@
       function renderDashboard() {
         const now = new Date(),
           h = now.getHours();
-        document.getElementById("dash-greeting").textContent =
+        document.getElementById("dash-greeting").innerHTML =
           h < 12
-            ? "Good morning 🌅"
+            ? "Good morning <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sunrise\x27/></svg>"
             : h < 17
-              ? "Good afternoon ☀️"
-              : "Good evening 🌙";
+              ? "Good afternoon <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-sun\x27/></svg>"
+              : "Good evening <svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-moon\x27/></svg>";
         document.getElementById("dash-date").textContent =
           now.toLocaleDateString("en-GB", {
             weekday: "long",
@@ -3067,7 +3120,7 @@
           const tn = appData.students.find((x) => x.id == tid)?.name;
           if (tn)
             ins.push(
-              `<div class="insight-chip">⭐ Most active: <strong>${tn}</strong></div>`,
+              `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-star\x27/></svg> Most active: <strong>${tn}</strong></div>`,
             );
         }
         let owed = 0;
@@ -3076,7 +3129,7 @@
         });
         if (owed > 0)
           ins.push(
-            `<div class="insight-chip">⏳ Pending: <strong>${prefs.currency}${owed.toLocaleString()}</strong></div>`,
+            `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-hourglass\x27/></svg> Pending: <strong>${prefs.currency}${owed.toLocaleString()}</strong></div>`,
           );
         const ws = new Date(now);
         ws.setDate(now.getDate() - now.getDay());
@@ -3084,11 +3137,11 @@
           (s) => new Date(s.date) >= ws,
         ).length;
         ins.push(
-          `<div class="insight-chip">📅 This week: <strong>${wc} class${wc !== 1 ? "es" : ""}</strong></div>`,
+          `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg> This week: <strong>${wc} class${wc !== 1 ? "es" : ""}</strong></div>`,
         );
         if (appData.students.length && ms.length)
           ins.push(
-            `<div class="insight-chip">📊 Avg/student: <strong>${(ms.length / appData.students.length).toFixed(1)}/mo</strong></div>`,
+            `<div class="insight-chip"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-chart\x27/></svg> Avg/student: <strong>${(ms.length / appData.students.length).toFixed(1)}/mo</strong></div>`,
           );
         el.innerHTML = ins.join("");
       }
@@ -3197,6 +3250,8 @@
           n = data.length,
           bW = (cW / n) * 0.6,
           gap = cW / n;
+        // canvas is hidden (0px) or too small to draw: nothing to render
+        if (cW <= 0 || cH <= 0 || n === 0) return;
         for (let i = 0; i <= 4; i++) {
           const y = p.t + cH * (1 - i / 4);
           ctx.beginPath();
@@ -3351,13 +3406,13 @@
           wd[new Date(s.date).getDay()]++;
         });
         const mw = Math.max(...wd, 1);
-        return `<div class="card"><div class="card-title"><span>📊</span> Sessions by Month</div><div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 0">${bars}</div></div>
-    <div class="card"><div class="card-title"><span>📅</span> Activity by Day of Week</div><div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0">${wd.map((v, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;border-radius:5px 5px 0 0;background:var(--accent);min-height:4px;height:${Math.max(4, 80 * (v / mw))}px"></div><div style="font-size:.68rem;color:var(--text3)">${["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][i]}</div></div>`).join("")}</div></div>
-    ${ts.length ? `<div class="card"><div class="card-title"><span>📚</span> Top Subjects</div>${ts.map(([s, c], i) => `<div style="margin-bottom:10px"><div class="flex-between" style="margin-bottom:4px"><span style="font-size:.88rem;font-weight:500">${s}</span><span style="font-size:.8rem;color:var(--text3)">${c} sessions</span></div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (c / ts[0][1])}%;background:${COLORS[i % COLORS.length]}"></div></div></div>`).join("")}</div>` : ""}`;
+        return `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-chart\x27/></svg></span> Sessions by Month</div><div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 0">${bars}</div></div>
+    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-calendar\x27/></svg></span> Activity by Day of Week</div><div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0">${wd.map((v, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;border-radius:5px 5px 0 0;background:var(--accent);min-height:4px;height:${Math.max(4, 80 * (v / mw))}px"></div><div style="font-size:.68rem;color:var(--text3)">${["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][i]}</div></div>`).join("")}</div></div>
+    ${ts.length ? `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-book\x27/></svg></span> Top Subjects</div>${ts.map(([s, c], i) => `<div style="margin-bottom:10px"><div class="flex-between" style="margin-bottom:4px"><span style="font-size:.88rem;font-weight:500">${s}</span><span style="font-size:.8rem;color:var(--text3)">${c} sessions</span></div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (c / ts[0][1])}%;background:${COLORS[i % COLORS.length]}"></div></div></div>`).join("")}</div>` : ""}`;
       }
       function renderStudentAnalytics() {
         if (!appData.students.length)
-          return '<div class="empty-state"><div class="empty-icon">👥</div><p>Add students first</p></div>';
+          return '<div class="empty-state"><div class="empty-icon"><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-users\x27/></svg></div><p>Add students first</p></div>';
         const now = new Date(),
           rows = appData.students
             .map((s) => {
@@ -3381,7 +3436,7 @@
             })
             .sort((a, b) => b.total - a.total);
         const mt = Math.max(...rows.map((r) => r.total), 1);
-        return `<div class="card"><div class="card-title"><span>👥</span> Student Comparison</div>${rows.map((r) => `<div style="margin-bottom:14px"><div class="flex-between" style="margin-bottom:5px"><div class="flex-gap"><div class="color-dot" style="background:${r.s.color || "var(--primary)"}"></div><span style="font-weight:600">${r.s.name}</span>${r.s.grade ? '<span class="badge badge-gray">' + r.s.grade + "</span>" : ""}</div><div class="flex-gap"><span class="badge badge-blue">${r.month}/${r.target} classes</span><span class="badge badge-gray">${r.cycle}</span>${r.owed > 0 ? '<span class="badge badge-red">' + prefs.currency + r.owed.toLocaleString() + "</span>" : '<span class="badge badge-green">Paid</span>'}</div></div><div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">${r.total} total sessions</div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (r.total / mt)}%;background:${r.s.color || "var(--primary)"}"></div></div></div>`).join("")}</div>`;
+        return `<div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-users\x27/></svg></span> Student Comparison</div>${rows.map((r) => `<div style="margin-bottom:14px"><div class="flex-between" style="margin-bottom:5px"><div class="flex-gap"><div class="color-dot" style="background:${r.s.color || "var(--primary)"}"></div><span style="font-weight:600">${r.s.name}</span>${r.s.grade ? '<span class="badge badge-gray">' + r.s.grade + "</span>" : ""}</div><div class="flex-gap"><span class="badge badge-blue">${r.month}/${r.target} classes</span><span class="badge badge-gray">${r.cycle}</span>${r.owed > 0 ? '<span class="badge badge-red">' + prefs.currency + r.owed.toLocaleString() + "</span>" : '<span class="badge badge-green">Paid</span>'}</div></div><div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">${r.total} total sessions</div><div class="progress-bar"><div class="progress-fill" style="width:${100 * (r.total / mt)}%;background:${r.s.color || "var(--primary)"}"></div></div></div>`).join("")}</div>`;
       }
       function renderIncomeAnalytics() {
         const now = new Date();
@@ -3415,8 +3470,8 @@
         }
         const mi = Math.max(...mr.map((m) => m.income), 1);
         return `<div class="stats-grid"><div class="stat-card green"><div class="stat-value small">${prefs.currency}${te.toLocaleString()}</div><div class="stat-label">Total Earned</div></div><div class="stat-card red"><div class="stat-value small">${prefs.currency}${to.toLocaleString()}</div><div class="stat-label">Still Owed</div></div></div>
-    <div class="card"><div class="card-title"><span>💰</span> Monthly Income</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding:8px 0">${mr.map((m) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:.7rem;font-weight:700;color:var(--success)">${m.income > 0 ? prefs.currency + m.income : ""}</div><div style="width:100%;border-radius:6px 6px 0 0;background:var(--success);min-height:4px;opacity:.85;height:${Math.max(4, 100 * (m.income / mi))}px"></div><div style="font-size:.68rem;color:var(--text3)">${m.label}</div></div>`).join("")}</div></div>
-    <div class="card"><div class="card-title"><span>👤</span> Income by Student</div>${
+    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-wallet\x27/></svg></span> Monthly Income</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding:8px 0">${mr.map((m) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:.7rem;font-weight:700;color:var(--success)">${m.income > 0 ? prefs.currency + m.income : ""}</div><div style="width:100%;border-radius:6px 6px 0 0;background:var(--success);min-height:4px;opacity:.85;height:${Math.max(4, 100 * (m.income / mi))}px"></div><div style="font-size:.68rem;color:var(--text3)">${m.label}</div></div>`).join("")}</div></div>
+    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-user\x27/></svg></span> Income by Student</div>${
       appData.students
         .map((s) => {
           const e =
@@ -3429,7 +3484,7 @@
         .join("") ||
       '<p style="color:var(--text3);font-size:.85rem">Set rates on students to track income.</p>'
     }</div>
-    <div class="card"><div class="card-title"><span>📋</span> Payment History</div>${
+    <div class="card"><div class="card-title"><span><svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-list\x27/></svg></span> Payment History</div>${
       (appData.payments || []).length
         ? (appData.payments || [])
             .slice()
@@ -3462,7 +3517,7 @@
         const w = document.getElementById("toast-wrap"),
           el = document.createElement("div");
         el.className = "toast";
-        el.textContent = msg;
+        el.innerHTML = msg;
         w.appendChild(el);
         setTimeout(() => el.remove(), 2500);
       }
@@ -3478,7 +3533,7 @@
           encodeURIComponent(JSON.stringify(d, null, 2));
         a.download = `tuition_backup_${new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}.json`;
         a.click();
-        showToast("📥 Data exported!");
+        showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-download\x27/></svg> Data exported!");
       }
       function importData(event) {
         const file = event.target.files[0];
@@ -3488,7 +3543,7 @@
           try {
             const imp = JSON.parse(e.target.result);
             if (!imp.students) {
-              showToast("❌ Invalid backup file");
+              showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-x\x27/></svg> Invalid backup file");
               return;
             }
             appData = {
@@ -3499,9 +3554,9 @@
             window.appData = appData;
             save();
             renderAll();
-            showToast("✅ Data imported!");
+            showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-check\x27/></svg> Data imported!");
           } catch {
-            showToast("❌ Failed to parse file");
+            showToast("<svg class=\x27ico\x27 aria-hidden=\x27true\x27><use href=\x27#i-x\x27/></svg> Failed to parse file");
           }
         };
         r.readAsText(file);
